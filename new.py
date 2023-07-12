@@ -74,6 +74,7 @@ gs_dataset = None
 gs_targettable = None
 gs_rootpath = None
 gs_selected_proto = None
+table_struct = None
 
 # Get the required propertiers from the environment ands store into global variables for reuse
 def get_properties():
@@ -210,20 +211,24 @@ async def default_stream_to_bq(table,messages,client):
 
 # Parse the CSV and schema to return a list of message objects that conform to the proto schema
 def parse_input(data):
+    global table_struct
     body = list(csv.reader(StringIO(data.body)))
     if data.attributes["ABAP"]["Kind"]:
         return []
-    abap = data.attributes["ABAP"]["Fields"]
-    parsed_abap = {}
-    for field in abap:
-        field["Name"] = field["Name"].replace('/','_')
-        parsed_abap[field["Name"]] = field
+    
+    if table_struct == None:
+        abap = data.attributes["ABAP"]["Fields"]
+        parsed_abap = {}
+        for field in abap:
+            field["Name"] = field["Name"].replace('/','_')
+            parsed_abap[field["Name"]] = field
+        table_struct = parsed_abap
     
     output = []
     for row in body:
         new_msg = PROTOCOL()
         count = 0
-        for col,field in parsed_abap.items():
+        for col,field in table_struct.items():
             value = row[count]
             if field["Kind"] in ['C', 'X', 'D']:
                 value = str(value)
