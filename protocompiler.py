@@ -8,7 +8,7 @@ def parse_and_compile(data):
     global onceflag
     data.attributes["proto_file_path"] = dir_path+"/Protocol.proto"
     if onceflag:
-        api.send(data)
+        api.send("output",data)
     mydict = data.attributes
     meta = [] 
     abapmeta = iter(mydict['metadata'])
