@@ -75,6 +75,7 @@ gs_targettable = None
 gs_rootpath = None
 gs_selected_proto = None
 table_struct = None
+use_buffer_dict = False
 
 # Get the required propertiers from the environment ands store into global variables for reuse
 def get_properties():
@@ -230,14 +231,11 @@ def parse_input(data):
         count = 0
         for col,field in table_struct.items():
             value = row[count]
-            if field["Kind"] in ['C', 'X', 'D']:
-                value = str(value)
-            elif field["Kind"] in ['s', 'I']:
+            if field["Kind"] in ['s', 'I']:
                 value = int(value)
-            elif field["Kind"] in ['P', 'N']:
-                value = str(value)
-            else:
-                value = str(value)
+            elif field["Kind"] in ['P']:
+                value = float(value)
+
             setattr(new_msg,field["Name"],value)
             if "IUUC_OPERATION" in col:
                 setattr(new_msg,"_CHANGE_TYPE","DELETE" if value == "D" else "UPSERT")
@@ -245,25 +243,42 @@ def parse_input(data):
         output.append(new_msg)    
     return output
 
-def select_proto():
+def select_proto(data):
     global gs_selected_proto
     gs_selected_proto = api.config.sourcetable
     if gs_selected_proto != None:
         return
-    DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(buffer_dict[gs_selected_proto]['bytes'])
+    if use_buffer_dict:
+        DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(buffer_dict[gs_selected_proto]['bytes'])
 
-    _globals = globals()
-    _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-    _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'TUNIT_pb2', _globals)
-    if _descriptor._USE_C_DESCRIPTORS == False:
-        DESCRIPTOR._options = buffer_dict[gs_sourcetable]['options']
-        _globals['_PROTOCOL']._serialized_start = buffer_dict[gs_selected_proto]['start']
-        _globals['_PROTOCOL']._serialized_end = buffer_dict[gs_selected_proto]['end']
+        _globals = globals()
+        _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
+        _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'TUNIT_pb2', _globals)
+        if _descriptor._USE_C_DESCRIPTORS == False:
+            DESCRIPTOR._options = buffer_dict[gs_sourcetable]['options']
+            _globals['_PROTOCOL']._serialized_start = buffer_dict[gs_selected_proto]['start']
+            _globals['_PROTOCOL']._serialized_end = buffer_dict[gs_selected_proto]['end']
+    else:
+        with open(data.attributes["proto_file_path"]) as f:
+            lines = f.readlines()
+            #TODO fix this crap
+            byte_arr = lines[15][60:-3]
+            start = lines[23][42:-1]
+            end = lines[24][40:-1]
+            DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(byte_arr)
+            _globals = globals()
+            _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
+            _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'Protocol_pb2', _globals)
+            if _descriptor._USE_C_DESCRIPTORS == False:
+                DESCRIPTOR._options = None
+                _globals['_PROTOCOL']._serialized_start = start
+                _globals['_PROTOCOL']._serialized_end = end
+
 
 
 ## This is the main input operator - getting data from the input port
 def on_input(data):
-    select_proto()
+    select_proto(data)
     messages = parse_input(data)
     if len(messages) == 0:
         return
