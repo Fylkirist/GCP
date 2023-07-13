@@ -17,22 +17,39 @@ buffer_dict = {
         "options":None,
         "start":16,
         "end":387,
-        "bytes":b'\n\x0bTUNIT.proto\"\xf3\x02\n\x05PROTOCOL\x12\r\n\x05MANDT\x18\x01 \x01(\t\x12\x0e\n\x06TU_NUM\x18\x02 \x01(\t\x12\x12\n\nTU_NUM_EXT\x18\x03 \x01(\t\x12\x0f\n\x07LIME_ID\x18\x04 \x01(\t\x12\x18\n\x10LIME_ID_UNPACKED\x18\x05 \x01(\t\x12\r\n\x05HU_ID\x18\x06 \x01(\t\x12\x0b\n\x03MTR\x18\x07 \x01(\t\x12\r\n\x05OWNER\x18\x08 \x01(\t\x12\x0b\n\x03TSP\x18\t \x01(\t\x12\x0c\n\x04SCAC\x18\n \x01(\t\x12\x14\n\x0cMAX_SEAL_NUM\x18\x0b \x01(\x03\x12\x15\n\rFIXED_VEH_NUM\x18\x0c \x01(\t\x12\x17\n\x0fLIC_PLATE_CNTRY\x18\r \x01(\t\x12\x11\n\tLIC_PLATE\x18\x0e \x01(\t\x12\x14\n\x0cTU_PERMANENT\x18\x0f \x01(\t\x12\x15\n\r_SCWM_TU_HEAD\x18\x10 \x01(\t\x12\x12\n\nTABLE_NAME\x18\x11 \x01(\t\x12\x16\n\x0eIUUC_OPERATION\x18\x12 \x01(\t\x12\x14\n\x0c_CHANGE_TYPE\x18\x13 \x01(\t',
+        "bytes":b'\n\x0bTUNIT.proto\"\xf3\x02\n\x05TUNIT\x12\r\n\x05MANDT\x18\x01 \x01(\t\x12\x0e\n\x06TU_NUM\x18\x02 \x01(\t\x12\x12\n\nTU_NUM_EXT\x18\x03 \x01(\t\x12\x0f\n\x07LIME_ID\x18\x04 \x01(\t\x12\x18\n\x10LIME_ID_UNPACKED\x18\x05 \x01(\t\x12\r\n\x05HU_ID\x18\x06 \x01(\t\x12\x0b\n\x03MTR\x18\x07 \x01(\t\x12\r\n\x05OWNER\x18\x08 \x01(\t\x12\x0b\n\x03TSP\x18\t \x01(\t\x12\x0c\n\x04SCAC\x18\n \x01(\t\x12\x14\n\x0cMAX_SEAL_NUM\x18\x0b \x01(\x03\x12\x15\n\rFIXED_VEH_NUM\x18\x0c \x01(\t\x12\x17\n\x0fLIC_PLATE_CNTRY\x18\r \x01(\t\x12\x11\n\tLIC_PLATE\x18\x0e \x01(\t\x12\x14\n\x0cTU_PERMANENT\x18\x0f \x01(\t\x12\x15\n\r_SCWM_TU_HEAD\x18\x10 \x01(\t\x12\x12\n\nTABLE_NAME\x18\x11 \x01(\t\x12\x16\n\x0eIUUC_OPERATION\x18\x12 \x01(\t\x12\x14\n\x0c_CHANGE_TYPE\x18\x13 \x01(\t',
         "topmessage":"TUNIT_pb2"
     },
-    "TU_SR_ACT":{
-        
+    "tu_status":{
+        "options":None,
+        "start":20,
+        "end":223,
+        "bytes":b'\n\x0ftu_status.proto\"\xcb\x01\n\x05TUNIT\x12\r\n\x05MANDT\x18\x01 \x01(\t\x12\x0e\n\x06TU_NUM\x18\x02 \x01(\t\x12\x15\n\rTU_SR_ACT_NUM\x18\x03 \x01(\t\x12\x13\n\x0bSTATUS_TYPE\x18\x04 \x01(\t\x12\x14\n\x0cSTATUS_VALUE\x18\x05 \x01(\t\x12\x0f\n\x07\x42OOKTST\x18\x06 \x01(\x02\x12\x0e\n\x06REASON\x18\x07 \x01(\t\x12\x12\n\nTABLE_NAME\x18\x08 \x01(\t\x12\x16\n\x0eIUUC_OPERATION\x18\t \x01(\t\x12\x14\n\x0c_CHANGE_TYPE\x18\n \x01(\t',
+        "topmessage":"tu_status_pb2"
     },
-    "TU_STATUS":{
-
+    "tu_sr_act":{
+        "options":None,
+        "start":20,
+        "end":1335,
+        "bytes":b'\n\x0ftu_sr_act.proto\"\xa3\n\n\x05TUNIT\x12\r\n\x05MANDT\x18\x01 \x01(\t\x12\x0e\n\x06TU_NUM\x18\x02 \x01(\t\x12\x15\n\rTU_SR_ACT_NUM\x18\x03 \x01(\t\x12\x0e\n\x06\x41\x43T_ID\x18\x04 \x01(\t\x12\x10\n\x08\x41\x43T_TYPE\x18\x05 \x01(\t\x12\x0f\n\x07\x41\x43T_CAT\x18\x06 \x01(\t\x12\x0f\n\x07\x41\x43T_DIR\x18\x07 \x01(\t\x12\x18\n\x10START_PLAN_TSTFR\x18\x08 \x01(\x02\x12\x18\n\x10START_PLAN_TSTTO\x18\t \x01(\x02\x12\x14\n\x0cSTART_ACTUAL\x18\n \x01(\x02\x12\x13\n\x0bSTART_TZONE\x18\x0b \x01(\t\x12\x16\n\x0e\x45ND_PLAN_TSTFR\x18\x0c \x01(\x02\x12\x16\n\x0e\x45ND_PLAN_TSTTO\x18\r \x01(\x02\x12\x12\n\nEND_ACTUAL\x18\x0e \x01(\x02\x12\x11\n\tEND_TZONE\x18\x0f \x01(\t\x12\x12\n\nROUTE_CURR\x18\x10 \x01(\t\x12\x11\n\tROUTE_DEP\x18\x11 \x01(\x02\x12\x11\n\tROUTE_DET\x18\x12 \x01(\t\x12\x18\n\x10ROUTE_DEP_SOURCE\x18\x13 \x01(\t\x12\x15\n\rLOAD_POS_CURR\x18\x14 \x01(\x03\x12\x10\n\x08TSP_CURR\x18\x15 \x01(\t\x12\x11\n\tSCAC_CURR\x18\x16 \x01(\t\x12\r\n\x05PRIOP\x18\x17 \x01(\x03\x12\x11\n\tTU_WEIGHT\x18\x18 \x01(\x02\x12\x15\n\rTU_WEIGHT_UOM\x18\x19 \x01(\t\x12\x14\n\x0cTRANSPL_TYPE\x18\x1a \x01(\t\x12\x0e\n\x06LOGSYS\x18\x1b \x01(\t\x12\x16\n\x0eTRANSPL_LOGSYS\x18\x1c \x01(\t\x12\x10\n\x08TMS_COMM\x18\x1d \x01(\t\x12\x13\n\x0bLOAD_WEIGHT\x18\x1e \x01(\x02\x12\x17\n\x0fLOAD_WEIGHT_UOM\x18\x1f \x01(\t\x12\x13\n\x0bLOAD_VOLUME\x18  \x01(\x02\x12\x17\n\x0fLOAD_VOLUME_UOM\x18! \x01(\t\x12\x13\n\x0bLOAD_LENGTH\x18\" \x01(\x02\x12\x12\n\nLOAD_WIDTH\x18# \x01(\x02\x12\x13\n\x0bLOAD_HEIGHT\x18$ \x01(\x02\x12\x14\n\x0cLOAD_UOM_LWH\x18% \x01(\t\x12\x12\n\nLOAD_UOM_W\x18& \x01(\t\x12\x12\n\nLOAD_UOM_H\x18\' \x01(\t\x12\x0f\n\x07\x46RD_NUM\x18( \x01(\t\x12\x10\n\x08\x46RD_ITEM\x18) \x01(\t\x12\x12\n\nFRD_PARENT\x18* \x01(\t\x12\x14\n\x0c\x46RD_ITEM_CAT\x18+ \x01(\t\x12\x16\n\x0e\x46RD_PARENT_CAT\x18, \x01(\t\x12\x13\n\x0b\x43HG_ABILITY\x18- \x01(\t\x12\x0c\n\x04YARD\x18. \x01(\t\x12\x11\n\tDAS_DOCNO\x18/ \x01(\t\x12\x12\n\nDAS_LPLOCA\x18\x30 \x01(\t\x12\x13\n\x0b\x44\x41S_CREATED\x18\x31 \x01(\t\x12\x13\n\x0bLOG_PROCESS\x18\x32 \x01(\t\x12\x0f\n\x07TU_TYPE\x18\x33 \x01(\t\x12\x1c\n\x14PARENT_TU_SR_ACT_NUM\x18\x34 \x01(\t\x12\x15\n\rPARENT_TU_NUM\x18\x35 \x01(\t\x12\x1a\n\x12\x43ONTAINER_ASSIGNED\x18\x36 \x01(\t\x12\x13\n\x0b\x46RD_STOP_ID\x18\x37 \x01(\t\x12\x12\n\nCREATED_BY\x18\x38 \x01(\t\x12\x12\n\nCREATED_ON\x18\x39 \x01(\x02\x12\x12\n\nCHANGED_BY\x18: \x01(\t\x12\x12\n\nCHANGED_ON\x18; \x01(\x02\x12\x17\n\x0f_SCWM_TU_SR_ACT\x18< \x01(\t\x12\x12\n\nTABLE_NAME\x18= \x01(\t\x12\x16\n\x0eIUUC_OPERATION\x18> \x01(\t\x12\x14\n\x0c_CHANGE_TYPE\x18? \x01(\t',
+        "topmessage":"tu_sr_act_pb2"
     },
-    "TU_DLV":{
-
+     "tu_dlv":{
+        "options":None,
+        "start":17,
+        "end":477,
+        "bytes":b'\n\x0ctu_dlv.proto\"\xcc\x03\n\x05TUNIT\x12\r\n\x05MANDT\x18\x01 \x01(\t\x12\x0e\n\x06TU_NUM\x18\x02 \x01(\t\x12\x15\n\rTU_SR_ACT_NUM\x18\x03 \x01(\t\x12\x0f\n\x07SEQ_NUM\x18\x04 \x01(\t\x12\x16\n\x0e\x43OMPARTMENT_ID\x18\x05 \x01(\t\x12\x10\n\x08LOAD_POS\x18\x06 \x01(\t\x12\r\n\x05LGNUM\x18\x07 \x01(\t\x12\r\n\x05\x44OCID\x18\x08 \x01(\t\x12\x0e\n\x06ITEMID\x18\t \x01(\t\x12\x0e\n\x06\x44OCCAT\x18\n \x01(\t\x12\r\n\x05\x44OCNO\x18\x0b \x01(\t\x12\x0e\n\x06ITEMNO\x18\x0c \x01(\t\x12\x11\n\tASGN_TYPE\x18\r \x01(\t\x12\x0e\n\x06TOP_HU\x18\x0e \x01(\t\x12\x13\n\x0bTOP_HUIDENT\x18\x0f \x01(\t\x12\x10\n\x08\x43ROSS_HU\x18\x10 \x01(\t\x12\x0f\n\x07\x43HG_IND\x18\x11 \x01(\t\x12\r\n\x05STATE\x18\x12 \x01(\t\x12\x0f\n\x07\x43REATED\x18\x13 \x01(\x02\x12\x0f\n\x07\x43HANGED\x18\x14 \x01(\x02\x12\x11\n\tFD_STATUS\x18\x15 \x01(\t\x12\x14\n\x0c_SCWM_TU_DLV\x18\x16 \x01(\t\x12\x12\n\nTABLE_NAME\x18\x17 \x01(\t\x12\x16\n\x0eIUUC_OPERATION\x18\x18 \x01(\t\x12\x14\n\x0c_CHANGE_TYPE\x18\x19 \x01(\t',
+        "topmessage":"tu_dlv_pb2"
     },
-    "ZEWM_SCWM_TU_DLV":{
-
+    "zewm_tu_dlv":{
+        "options":None,
+        "start":22,
+        "end":641,
+        "bytes":b'\n\x11zewm_tu_dlv.proto\"\xeb\x04\n\x05TUNIT\x12\r\n\x05MANDT\x18\x01 \x01(\t\x12\x0e\n\x06TU_NUM\x18\x02 \x01(\t\x12\x15\n\rTU_SR_ACT_NUM\x18\x03 \x01(\t\x12\x12\n\nTU_EXT_NUM\x18\x04 \x01(\t\x12\x0f\n\x07SEQ_NUM\x18\x05 \x01(\t\x12\x10\n\x08VBELN_VL\x18\x06 \x01(\t\x12\r\n\x05\x41NZPK\x18\x07 \x01(\t\x12\x18\n\x10ZZCOMPLETEINSHIP\x18\x08 \x01(\t\x12\x10\n\x08ZZTUTEXT\x18\t \x01(\t\x12\x16\n\x0e\x43OMPARTMENT_ID\x18\n \x01(\t\x12\x10\n\x08LOAD_POS\x18\x0b \x01(\t\x12\r\n\x05LGNUM\x18\x0c \x01(\t\x12\r\n\x05\x44OCID\x18\r \x01(\t\x12\x0e\n\x06ITEMID\x18\x0e \x01(\t\x12\x0e\n\x06\x44OCCAT\x18\x0f \x01(\t\x12\r\n\x05\x44OCNO\x18\x10 \x01(\t\x12\x0e\n\x06ITEMNO\x18\x11 \x01(\t\x12\x11\n\tASGN_TYPE\x18\x12 \x01(\t\x12\x0e\n\x06TOP_HU\x18\x13 \x01(\t\x12\x13\n\x0bTOP_HUIDENT\x18\x14 \x01(\t\x12\x10\n\x08\x43ROSS_HU\x18\x15 \x01(\t\x12\x0f\n\x07\x43HG_IND\x18\x16 \x01(\t\x12\r\n\x05STATE\x18\x17 \x01(\t\x12\x0f\n\x07\x43REATED\x18\x18 \x01(\x02\x12\x0f\n\x07\x43HANGED\x18\x19 \x01(\x02\x12\x11\n\tFD_STATUS\x18\x1a \x01(\t\x12\x14\n\x0c_SCWM_TU_DLV\x18\x1b \x01(\t\x12\r\n\x05\x43\x44\x41TE\x18\x1c \x01(\t\x12\r\n\x05\x43TIME\x18\x1d \x01(\t\x12\x0e\n\x06\x43HDATE\x18\x1e \x01(\t\x12\x0e\n\x06\x43HTIME\x18\x1f \x01(\t\x12\x12\n\nTABLE_NAME\x18  \x01(\t\x12\x16\n\x0eIUUC_OPERATION\x18! \x01(\t\x12\x14\n\x0c_CHANGE_TYPE\x18\" \x01(\t',
+        "topmessage":"zewm_tu_dlv_pb2"
     }
 }
+
 
 # Load necessary high-level APIs
 from google.oauth2 import service_account
@@ -214,7 +231,7 @@ async def default_stream_to_bq(table,messages,client):
 def parse_input(data):
     global table_struct
     body = list(csv.reader(StringIO(data.body)))
-    if data.attributes["ABAP"]["Kind"]:
+    if data.attributes["ABAP"]["Kind"] == "Element":
         return []
     
     if table_struct == None:
@@ -227,7 +244,7 @@ def parse_input(data):
     
     output = []
     for row in body:
-        new_msg = PROTOCOL()
+        new_msg = TUNIT()
         count = 0
         for col,field in table_struct.items():
             value = row[count]
@@ -246,7 +263,7 @@ def parse_input(data):
 def select_proto(data):
     global gs_selected_proto
     gs_selected_proto = api.config.sourcetable
-    if gs_selected_proto != None:
+    if gs_selected_proto == None:
         return
     if use_buffer_dict:
         DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(buffer_dict[gs_selected_proto]['bytes'])
@@ -256,24 +273,19 @@ def select_proto(data):
         _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'TUNIT_pb2', _globals)
         if _descriptor._USE_C_DESCRIPTORS == False:
             DESCRIPTOR._options = buffer_dict[gs_sourcetable]['options']
-            _globals['_PROTOCOL']._serialized_start = buffer_dict[gs_selected_proto]['start']
-            _globals['_PROTOCOL']._serialized_end = buffer_dict[gs_selected_proto]['end']
+            _globals['_TUNIT']._serialized_start = buffer_dict[gs_selected_proto]['start']
+            _globals['_TUNIT']._serialized_end = buffer_dict[gs_selected_proto]['end']
     else:
-        with open(data.attributes["proto_file_path"]) as f:
-            lines = f.readlines()
-            #TODO fix this crap
-            byte_arr = lines[15][60:-3]
-            start = lines[23][42:-1]
-            end = lines[24][40:-1]
-            DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(byte_arr)
-            _globals = globals()
-            _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-            _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'Protocol_pb2', _globals)
-            if _descriptor._USE_C_DESCRIPTORS == False:
-                DESCRIPTOR._options = None
-                _globals['_PROTOCOL']._serialized_start = start
-                _globals['_PROTOCOL']._serialized_end = end
+        DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(data.attributes["proto_struct"]["bytes"])
 
+        _globals = globals()
+        _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
+        _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'TUNIT_pb2', _globals)
+        if _descriptor._USE_C_DESCRIPTORS == False:
+            DESCRIPTOR._options = data.attributes["proto_struct"]['options']
+            _globals['_TUNIT']._serialized_start = data.attributes["proto_struct"]['start']
+            _globals['_TUNIT']._serialized_end = data.attributes["proto_struct"]['end']
+    api.send("info",gs_selected_proto)
 
 
 ## This is the main input operator - getting data from the input port
