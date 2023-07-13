@@ -10,7 +10,7 @@ def parse_and_compile(data):
     global buffer_struct
     if onceflag:
         data.attributes["proto_struct"] = buffer_struct
-        #api.send("output",data)
+        api.send("output",data)
         return
     mydict = data.attributes
     meta = []  # Colnames from dict object
@@ -75,18 +75,15 @@ def parse_and_compile(data):
     api.send("info", a.stdout.decode("utf-8"))
     with open(f"{dir_path}/TUNIT_pb2.py","r") as f:
         lines = f.readlines()
-        bytes_string = lines[15][60:-3]
+        bytes_string = lines[15][58:-2]
         start = lines[23][39:-1]
         end = lines[24][37:-1]
-        api.send("info",bytes_string)
-        api.send("info",bytes_string.encode().decode())
-        api.send("info",str(type(bytes_string.encode())))
-        buffer_struct["bytes"] = bytes_string.encode()
+        buffer_struct["bytes"] = bytes_string
         buffer_struct["start"] = start
         buffer_struct["end"] = end
         
     data.attributes["proto_struct"] = buffer_struct
-    #api.send("output",data)
+    api.send("output",data)
     onceflag = True
     return
 

@@ -263,7 +263,7 @@ def parse_input(data):
 def select_proto(data):
     global gs_selected_proto
     gs_selected_proto = api.config.sourcetable
-    if gs_selected_proto == None:
+    if gs_selected_proto == "":
         return
     if use_buffer_dict:
         DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(buffer_dict[gs_selected_proto]['bytes'])
@@ -276,15 +276,14 @@ def select_proto(data):
             _globals['_TUNIT']._serialized_start = buffer_dict[gs_selected_proto]['start']
             _globals['_TUNIT']._serialized_end = buffer_dict[gs_selected_proto]['end']
     else:
-        DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(data.attributes["proto_struct"]["bytes"])
-
+        DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(eval(data.attributes['proto_struct']['bytes']))
         _globals = globals()
         _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
         _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'TUNIT_pb2', _globals)
         if _descriptor._USE_C_DESCRIPTORS == False:
-            DESCRIPTOR._options = data.attributes["proto_struct"]['options']
-            _globals['_TUNIT']._serialized_start = data.attributes["proto_struct"]['start']
-            _globals['_TUNIT']._serialized_end = data.attributes["proto_struct"]['end']
+            DESCRIPTOR._options = None
+            _globals['_TUNIT']._serialized_start = data.attributes['proto_struct']['start']
+            _globals['_TUNIT']._serialized_end = data.attributes['proto_struct']['end']
     api.send("info",gs_selected_proto)
 
 
