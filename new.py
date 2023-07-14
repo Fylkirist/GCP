@@ -1,7 +1,7 @@
 ## 
 ## Custom operator to write to Google Bigquery table using the new CDC streaming functionality
 ## BK: 2023-07-05 - Initial framework
-## AK: 2023-07-0x - V1 of the operator
+## AK: 2023-07-13 - V1 of the operator
 ##
 
 from google.protobuf import descriptor as _descriptor
@@ -92,7 +92,8 @@ gs_targettable = None
 gs_rootpath = None
 gs_selected_proto = None
 table_struct = None
-use_buffer_dict = False
+# AK: Use internal buffer_dict for message structure - if False - get structure from "Google BigQuery Protocompiler" 
+use_buffer_dict = True
 
 # Get the required propertiers from the environment ands store into global variables for reuse
 def get_properties():
@@ -119,7 +120,7 @@ def print_info():
     
     # What version do we use for Gen1
     api.send("info", f'Python version = {sys.version}')
-    api.send("info", 'AK (2023-07-05): Version 0.9 - handling TUNIT as the only table  structure known')
+    api.send("info", 'AK (2023-07-13): Version 1.0 - Have message dict for 5 tables - can also get message desc through protocompiler')
     
     # Fill in properties into global variables
     get_properties()
@@ -248,11 +249,14 @@ def parse_input(data):
         count = 0
         for col,field in table_struct.items():
             value = row[count]
-            if field["Kind"] in ['s', 'I']:
+            if field["Kind"] == 'C': # BK - remove checking the opther options
+                pass
+            elif field["Kind"] in ['s', 'I']:
                 value = int(value)
             elif field["Kind"] in ['P']:
                 value = float(value)
-
+            elif field["Kind"] in ['D'] and value == "9999-99-99":  # BK check if date is out of range
+                value = "9999-12-31" 
             setattr(new_msg,field["Name"],value)
             if "IUUC_OPERATION" in col:
                 setattr(new_msg,"_CHANGE_TYPE","DELETE" if value == "D" else "UPSERT")
