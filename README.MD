@@ -34,3 +34,20 @@ This repo contains:
 
 <h3>Emulators</h3>
 
+<p>
+    The slt emulators have 2 outputs, output and ABAP. Output is the port that sends the complete schema and body.
+</p>
+
+<h3>Protobuf compiler<h3>
+
+<p>
+    Using the compiler in your pipeline is recommended but not required, it makes starting up a new pipeline or making changes to your table smoother by doing a one time protobuf compilation upon initial load. In order to use it, place it ahead of the CDC writer operator, and set "precompiled" to false. Connect the SLT connector to the protobuf compiler input and connect the output to the CDC writer, the info port will send the proto schema so you can see it on a wiretap.
+    <img src="pipeline.PNG">
+    <img src="CDCconfig.PNG">
+</p>
+
+<h3>CDC writer<h3>
+
+<p>
+
+</p>
