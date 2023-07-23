@@ -33,18 +33,17 @@ Make sure to tag the dockerfile as "bigquery" so our operators can use it later.
 
 <h3>Emulators</h3>
 
-
 The slt emulators have 2 outputs, output and ABAP. Output is the port that sends the complete schema and body.
-
 
 <h3>Protobuf compiler<h3>
 
+<p>Using the compiler in your pipeline is recommended but not required, it makes starting up a new pipeline or making changes to your table smoother by doing a one time protobuf compilation upon initial load. In order to use it, place it ahead of the CDC writer operator, and set "precompiled" to false. Connect the SLT connector to the protobuf compiler input and connect the output to the CDC writer, the info port will send the proto schema so you can see it on a wiretap.</p>
 
-Using the compiler in your pipeline is recommended but not required, it makes starting up a new pipeline or making changes to your table smoother by doing a one time protobuf compilation upon initial load. In order to use it, place it ahead of the CDC writer operator, and set "precompiled" to false. Connect the SLT connector to the protobuf compiler input and connect the output to the CDC writer, the info port will send the proto schema so you can see it on a wiretap.
+
 
 <img src="pipeline.PNG"></img>
 
-<br>
+<br/>
 
 <img src="CDCconfig.PNG"></img>
 
@@ -74,3 +73,6 @@ buffer_dict = {
 }
 ```
 
+<h3>ABAP Data transformer</h3>
+
+This is an operator to sanitize the data before it's parsed and sent to bigquery, place it before the protobuf compiler in the pipeline.
