@@ -62,7 +62,7 @@ This repo contains:
 <p>
     Create a new dictionary entry using the source table name in buffer_dict like so:
 </p>
-```py
+``` py
 buffer_dict = {
     "SOURCETABLE":{
         "bytes":b'your_bytestring_here',
