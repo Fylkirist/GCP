@@ -62,16 +62,15 @@ This repo contains:
 <p>
     Create a new dictionary entry using the source table name in buffer_dict like so:
 </p>
- ```py
-
-    buffer_dict = {
-        "SOURCETABLE":{
-            "bytes":b"your_bytestring_here",
-            "start":0,
-            "end":0,
-            "options":None,
-            "topmessage":"message_protobuf_name"
-        }
+```py
+buffer_dict = {
+    "SOURCETABLE":{
+        "bytes":b'your_bytestring_here',
+        "start":0,
+        "end":0,
+        "options":None,
+        "topmessage":"message_protobuf_name"
     }
-
+}
 ```
+
