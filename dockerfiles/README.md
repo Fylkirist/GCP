@@ -11,3 +11,7 @@ Steps to create your dockerfile:
 * After inserting the Docker commands, click the  "Settings" icon <img src='/raw/dockerfilesettings.png' height='25'> and add the necessary tags
 * Press "Save" and then "Build" from the same menu bar: <img src='/raw/dockerfilesettings.png' height='25'>
 
+You will now have 2 files in the new docker folder; a Dockerfile and a Tags.json.
+
+After Build completed (successfully), your new Custom operators have an environment with the necessary libriaries and tools in place.
+
