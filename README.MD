@@ -77,4 +77,4 @@ buffer_dict = {
 
 ### ABAP Data transformer
 
-This is an operator to sanitize the data before it's parsed and sent to bigquery, place it before the protobuf compiler in the pipeline.
+This is an operator to sanitize the data before it's parsed and sent to bigquery, for example, bigquery does not allow datestamps to exceed 31. December so invalid timestamps are rewritten to 9999-12-31. Place it before the protobuf compiler in the pipeline.
