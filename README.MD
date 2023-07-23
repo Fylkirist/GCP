@@ -54,12 +54,11 @@ This repo contains:
     To use, you need to select your credentials, then enter the names of your dataset and table you want to update.
     If you are manually compiling your protobufs, set "precompiled" to true, and substitute the contents of buffer_dict in the manner described below:
 </p>
-<img>
 <p>
     Your message name must be TUNIT in your proto file.
     Copy the following from your compiled pb2 file:
 </p>
-<img>
+<img src="copythis.PNG">
 <p>
     Create a new dictionary entry using the source table name in buffer_dict like so:
 </p>
@@ -74,5 +73,5 @@ This repo contains:
             "topmessage":"message_protobuf_name"
         }
     }
-    
+
 ```
