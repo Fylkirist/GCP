@@ -8,4 +8,6 @@ Steps to create your dockerfile:
 * Expand the "dockerfiles", and press right mouse-button and select "Create Docker File"
 * Give it a name: "googlebigquery" or a name of your choice (name not important, tags are)
 * You will now have an empty Dockerfile - Open the DOckerfile by clicking and insert tecxt from this repo
-* After inserting the Docker commands, clock the "Settings" icon
+* After inserting the Docker commands, click the  "Settings" icon <img src='/raw/dockerfilesettings.png' height='25'> and add the necessary tags
+* Press "Save" and then "Build" from the same menu bar: <img src='/raw/dockerfilesettings.png' height='25'>
+
