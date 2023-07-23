@@ -9,8 +9,9 @@ This repo contains:
     <li>SLT connector emulators for testing</li>
 </ul>
 
-<h3>Setup</h3>
+---
 
+<h3>Setup</h3>
 
 To start, we need to ensure our pipeline has the proper dependencies.
 Go to your repo and create a new dockerfile that contains the following code: 
@@ -31,6 +32,8 @@ Go to your repo and create a new dockerfile that contains the following code:
 
 Make sure to tag the dockerfile as "bigquery" so our operators can use it later.
 
+---
+
 <h3>Emulators</h3>
 
 The slt emulators have 2 outputs, output and ABAP. Output is the port that sends the complete schema and body.
@@ -39,13 +42,11 @@ The slt emulators have 2 outputs, output and ABAP. Output is the port that sends
 
 <p>Using the compiler in your pipeline is recommended but not required, it makes starting up a new pipeline or making changes to your table smoother by doing a one time protobuf compilation upon initial load. In order to use it, place it ahead of the CDC writer operator, and set "precompiled" to false. Connect the SLT connector to the protobuf compiler input and connect the output to the CDC writer, the info port will send the proto schema so you can see it on a wiretap.</p>
 
-pipeline:
+![]("pipeline.PNG")
 
-<img src="pipeline.PNG"></img>
+---
 
-<br/>
-
-<img src="CDCconfig.PNG"></img>
+![]("CDCconfig.PNG")
 
 <h3>CDC writer<h3>
 
@@ -56,8 +57,8 @@ If you are manually compiling your protobufs, set "precompiled" to true, and sub
 Your message name must be TUNIT in your proto file.
 Copy the following from your compiled pb2 file
 
-Compiled:
-<img src="copythis.PNG"></img>
+![]("copythis.PNG")
+---
 
 Create a new dictionary entry using the source table name in buffer_dict like so
 
