@@ -1,0 +1,21 @@
+{
+    "description": "SLT Connector emu (TU_ZEVM)",
+    "component": "com.sap.system.python3Operator",
+    "versionStatus": "active",
+    "outports": [
+        {
+            "name": "output",
+            "type": "message"
+        },
+        {
+            "name": "ABAP",
+            "type": "string"
+        }
+    ],
+    "icon": "arrow-circle-right",
+    "config": {
+        "$type": "http://sap.com/vflow/ak.emu.slt_emulator_tu_zevm.configSchema.json",
+        "replicationmode": "Initial",
+        "script": "file://script.py"
+    }
+}

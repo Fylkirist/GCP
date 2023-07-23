@@ -1,0 +1,31 @@
+{
+    "description": "ABAP Data Transformer",
+    "component": "com.sap.system.python3Operator",
+    "versionStatus": "active",
+    "inports": [
+        {
+            "name": "input",
+            "type": "message"
+        }
+    ],
+    "outports": [
+        {
+            "name": "output",
+            "type": "message"
+        },
+        {
+            "name": "info",
+            "type": "string"
+        }
+    ],
+    "iconsrc": "banded-columns.svg",
+    "config": {
+        "$type": "http://sap.com/vflow/ak.abap.abap_transformer.configSchema.json",
+        "optimize_for_bigquery": "Passthrough",
+        "script": "file://script.py"
+    },
+    "tags": {
+        "biqquery": "",
+        "pyarrow": "12.0.1"
+    }
+}
