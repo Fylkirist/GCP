@@ -49,7 +49,7 @@ Using the compiler in your pipeline is recommended but not required, it makes st
 
 ![](CDCconfig.PNG)
 
-<h3>CDC writer<h3>
+### CDC writer
 
 This operator writes to Google bigquery.
 To use, you need to select your credentials, then enter the names of your dataset and table you want to update.
