@@ -1,5 +1,5 @@
 ##
-## Module to use pyarrow to optimize data in the body - make ABAP data compliant with target system
+## Module to use pyarrow to otpimze data in the body - make ABAP data compliant with target system
 ##
 import io
 import pyarrow as pa
@@ -26,6 +26,9 @@ def on_input(data):
         colnames.append(columnname['Name'])
         col_types[columnname['Name']] = columnname['Kind']
     
+    # TODO: Send this onfo once pr run, also add info about which columns are affected
+    #       by tramsformations - building a infobuffer and esn all at once
+    #
     api.send("info","Input data columns\n---------------------")
     for k, v in col_types.items():
         api.send("info",f"Name:{k}, Kind:{v}")
@@ -96,6 +99,10 @@ def on_input(data):
             )
         data.attributes["ak.abap.abap_transformer"] = optimize_method 
         api.send("output", api.Message( attributes = data.attributes, body = newbody_b.getvalue().decode()))
+        ## BK: ALternate way - may check wich is faster
+        ##   data.body = newbody_b.getvalue().decode()
+        ##   api.send("output", data)
+
 
 # Initial info about the ABAP Transformer Operator
 def gen():
@@ -105,6 +112,7 @@ def gen():
     api.send("info", f"Installed pyarrow versjon = {pa.__version__} >= 11.0.0")
     optimize_method = api.config.optimize_for_bigquery
     api.send("info", f'ak.abap.abap_transformer : "{optimize_method}"')
+    api.send("info, "")
 
 
 ##
