@@ -1,0 +1,45 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://sap.com/vflow/ak.gcp.bigquery_create_table.configSchema.json",
+    "type": "object",
+    "properties": {
+        "codelanguage": {
+            "type": "string"
+        },
+        "script": {
+            "type": "string"
+        },
+        "bigquery": {
+            "title": "Google Cloud Connection",
+            "description": "Bigquery Connection (GCS connection type)",
+            "type": "object",
+            "properties": {
+                "connectionID": {
+                    "title": "ConnectionID",
+                    "type": "string",
+                    "format": "com.sap.dh.connection.id",
+                    "sap_vflow_valuehelp": {
+                        "url": "/app/datahub-app-connection/connections?connectionTypes=GCS",
+                        "valuepath": "id",
+                        "displayStyle": "autocomplete"
+                    }
+                }
+            }
+        },
+        "targetdataset": {
+            "title": "BigQuery dataset",
+            "description": "Which dataset will the table be in",
+            "type": "string"
+        },
+        "targettable": {
+            "title": "Target table name",
+            "description": "The name of the target table in Google BigQuery",
+            "type": "string"
+        }
+    },
+    "required": [
+        "sourcetable",
+        "targetdataset",
+        "targettable"
+    ]
+}

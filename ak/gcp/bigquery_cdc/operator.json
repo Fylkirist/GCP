@@ -1,0 +1,26 @@
+{
+    "description": "Google BigQuery CDC Writer",
+    "component": "com.sap.system.python3Operator",
+    "versionStatus": "active",
+    "inports": [
+        {
+            "name": "input",
+            "type": "message"
+        }
+    ],
+    "outports": [
+        {
+            "name": "info",
+            "type": "string"
+        }
+    ],
+    "icon": "bitbucket-square",
+    "config": {
+        "$type": "http://sap.com/vflow/ak.gcp.bigquery_cdc.configSchema.json",
+        "script": "file://script.py",
+        "sourcetable": "..Select table......"
+    },
+    "tags": {
+        "biqquery": ""
+    }
+}

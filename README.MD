@@ -6,7 +6,6 @@ This repo contains:
     <li>Google bigquery table creator</li>
     <li>ABAP data transformer</li>
     <li>Protobuf compiler operator</li>
-    <li>SLT connector emulators for testing</li>
 </ul>
 
 ---
@@ -34,20 +33,16 @@ Make sure to tag the dockerfile as "bigquery" so our operators can use it later.
 
 ---
 
-### Emulators
-
-The slt emulators have 2 outputs, output and ABAP. Output is the port that sends the complete schema and body.
-
 ### Protobuf compiler
 
 Using the compiler in your pipeline is recommended but not required, it makes starting up a new pipeline or making changes to your table smoother by doing a one time protobuf compilation upon initial load. In order to use it, place it ahead of the CDC writer operator, and set "precompiled" to false. Connect the SLT connector to the protobuf compiler input and connect the output to the CDC writer, the info port will send the proto schema so you can see it on a wiretap.
 
 
-![](pipeline.PNG)
+![](raw/pipeline.PNG)
 
 ---
 
-![](CDCconfig.PNG)
+![](raw/CDCconfig.PNG)
 
 ### CDC writer
 
@@ -58,7 +53,7 @@ If you are manually compiling your protobufs, set "precompiled" to true, and sub
 Your message name must be TUNIT in your proto file.
 Copy the following from your compiled pb2 file
 
-![](copythis.PNG)
+![](raw/copythis.PNG)
 ---
 
 Create a new dictionary entry using the source table name in buffer_dict like so
@@ -78,3 +73,9 @@ buffer_dict = {
 ### ABAP Data transformer
 
 This is an operator to sanitize the data before it's parsed and sent to bigquery, for example, bigquery does not allow datestamps to exceed 31. December so invalid timestamps are rewritten to 9999-12-31. Place it before the protobuf compiler in the pipeline.
+
+---
+
+### Bigquery table creator
+
+Checks if the table exists and creates it with the proper attributes if not, can always be present in pipeline.
