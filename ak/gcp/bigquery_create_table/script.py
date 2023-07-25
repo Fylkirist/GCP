@@ -185,15 +185,14 @@ def create_table(mydict):
 ##
 ## This is the main input handler - getting SLT data
 ##
-
 def on_input(data):
     global once_flag
     # TODO - check if we get the right message in with the required fields
     # Check if we have a valid ABAP and metadata structure
 
-    if check_table_exists(table=f"{gs_project_id}.{gs_dataset}.{gs_table_id}",client=bq_client):
+    if check_table_exists(table=gs_table_id,client=bq_client):
         once_flag = False
-        api.send("info",f"{gs_project_id}.{gs_dataset}.{gs_table_id} already exists.")
+        api.send("info",f"{gs_table_id} already exists.")
     if data.attributes.get("ABAP") and data.attributes.get("metadata") and once_flag :
         # I can create table
         create_table(data.attributes)
@@ -201,7 +200,6 @@ def on_input(data):
     else :
         batch_index = data.attributes['message.batchIndex']
         api.send("info", f"Event skipped - message.batchIndex = {batch_index}")
-    api.send("output",data)
 
 
 
@@ -210,4 +208,3 @@ def on_input(data):
 ##
 api.add_generator(print_info)
 api.set_port_callback("input", on_input)
-
