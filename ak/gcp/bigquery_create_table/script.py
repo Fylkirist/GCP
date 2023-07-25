@@ -170,17 +170,22 @@ def create_table(mydict):
     )
     
     # Creating SQL to ALTER table for CDC support
-    sql1 = f"ALTER TABLE {gs_table_id} SET OPTIONS ( max_staleness = INTERVAL 15 MINUTE);"
+    # BK (2023-07-25) - need to quote objects with backtick(`) - some project ids may contain special chars
+    #sql1 = f"ALTER TABLE `{gs_table_id}` SET OPTIONS ( max_staleness = INTERVAL 15 MINUTE);"
+    sql1 = f"ALTER TABLE {table.dataset_id}.{table.table_id} SET OPTIONS ( max_staleness = INTERVAL 15 MINUTE);"
     
     # Find keys
     keys = [ a[0]   for a in meta if a[5] == 'X']
-    sql2 = f"ALTER TABLE {gs_table_id } ADD PRIMARY KEY ( { ','.join(keys)} ) NOT ENFORCED;"
-    
+    # BK (2023-07-25) - need to quote objects with backtick(`) - some project ids may contain special chars
+    #sql2 = f"ALTER TABLE `{gs_table_id}` ADD PRIMARY KEY ( { ','.join(keys)} ) NOT ENFORCED;"
+    sql2 = f"ALTER TABLE {table.dataset_id}.{table.table_id} ADD PRIMARY KEY ( { ','.join(keys)} ) NOT ENFORCED;"
+
     query = f"{sql1}\n{sql2}"
     request = bq_client.query(query)
 
     for thing in request:
         api.send("info",str(thing))
+
 
 ##
 ## This is the main input handler - getting SLT data
