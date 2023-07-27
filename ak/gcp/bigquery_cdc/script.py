@@ -98,7 +98,7 @@ use_buffer_dict = False
 
 # Get the required propertiers from the environment ands store into global variables for reuse
 def get_properties():
-    global gs_client, gs_rootpath, gs_project_id, gs_dataset, gs_targettable, gs_sourcetable, optimize_method
+    global gs_client, gs_rootpath, gs_project_id, gs_dataset, gs_targettable, gs_sourcetable
         
     # TODO - may use a try catch
     
@@ -113,8 +113,6 @@ def get_properties():
     gs_sourcetable = api.config.sourcetable
     gs_dataset = api.config.targetdataset
     gs_targettable = api.config.targettable
-    optimize_method = api.config["ak.abap.data_transformer"] if "ak.abap.data_transformer" in api.config else None  # 2023-07-27 check for presence of Data Transform
-    # Alternate: optimize_method = api.config.get("ak.abap.data_transformer")  # Not checked if this is possible
 
 # Printing useful input about the environment to the "info" port -> str
 def print_info():
@@ -134,7 +132,7 @@ def print_info():
     api.send("info", f'rootPath = "{gs_rootpath}"')
     api.send("info", f'sourcetable = "{gs_sourcetable}"')
     api.send("info", f'target = "{gs_project_id}.{gs_dataset}.{gs_targettable}"')
-    api.send("info", f'Optimize method = "{optimize_method}"')
+    #api.send("info", f'Optimize method = "{optimize_method}"')
 
     # Connect
     keyfile = api.config.bigquery['connectionProperties']['keyFile']
@@ -228,7 +226,11 @@ async def default_stream_to_bq(table,messages,client):
 
 # Parse the CSV and schema to return a list of message objects that conform to the proto schema
 def parse_input(data):
-    global table_struct
+    global table_struct, optimize_method
+    #optimize_method = api.config["ak.abap.data_transformer"] if "ak.abap.data_transformer" in api.config else None  # 2023-07-27 check for presence of Data Transform
+    optimize_method = data.attributes.get("ak.abap.data_transformer")  # Not checked if this is possible
+    api.send("info", f'Optimize method = "{optimize_method}"')
+
     body = list(csv.reader(StringIO(data.body)))
     if data.attributes["ABAP"]["Kind"] == "Element":
         return []
