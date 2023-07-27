@@ -92,12 +92,13 @@ gs_targettable = None
 gs_rootpath = None
 gs_selected_proto = None
 table_struct = None
+optimize_method = None
 # AK: Use internal buffer_dict for message structure - if False - get structure from "Google BigQuery Protocompiler" 
 use_buffer_dict = False
 
 # Get the required propertiers from the environment ands store into global variables for reuse
 def get_properties():
-    global gs_client, gs_rootpath, gs_project_id, gs_dataset, gs_targettable, gs_sourcetable
+    global gs_client, gs_rootpath, gs_project_id, gs_dataset, gs_targettable, gs_sourcetable, optimize_method
         
     # TODO - may use a try catch
     
@@ -112,7 +113,8 @@ def get_properties():
     gs_sourcetable = api.config.sourcetable
     gs_dataset = api.config.targetdataset
     gs_targettable = api.config.targettable
-    
+    optimize_method = api.config["ak.abap.data_transformer"] if "ak.abap.data_transformer" in api.config else None  # 2023-07-27 check for presence of Data Transform
+    # Alternate: optimize_method = api.config.get("ak.abap.data_transformer")  # Not checked if this is possible
 
 # Printing useful input about the environment to the "info" port -> str
 def print_info():
@@ -131,7 +133,8 @@ def print_info():
     api.send("info", f'projectID = "{gs_project_id}"')
     api.send("info", f'rootPath = "{gs_rootpath}"')
     api.send("info", f'sourcetable = "{gs_sourcetable}"')
-    api.send("info", f'target = "{gs_project_id}.{gs_dataset}.{gs_targettable}"\n')
+    api.send("info", f'target = "{gs_project_id}.{gs_dataset}.{gs_targettable}"')
+    api.send("info", f'Optimize method = "{optimize_method}"'
 
     # Connect
     keyfile = api.config.bigquery['connectionProperties']['keyFile']
@@ -141,12 +144,6 @@ def print_info():
         api.send("info", f'Connected successfully to {gs_project_id}')
     else :
         api.send("info", 'Connect not successful.....')
-        
-    #    # Listing blobs recursively
-    #    bucket = storage.Bucket(gs_client, root)
-    #    blobs = bucket.list_blobs()
-    #    for blob in blobs:
-    #        api.send("output", f'blob = {blob.name}')
         
 
 # Create an async iterator where each message batch is less than the input size, bigquery default stream has a 10MB limit per stream.
@@ -261,8 +258,9 @@ def parse_input(data):
                 elif field["Kind"] in ['P']:
                     value = float(value)
                 elif field["Kind"] in ['D'] and value == "9999-99-99":  # BK check if date is out of range
-                    value = "9999-12-31" 
-                setattr(new_msg,field["Name"],value)
+                    value = None  # 2023-07-27 changed to None (old "9999-12-31" )  
+                if value is not None and len(str(value)) > 0:  # TODO - 2023-07-27 add logic for "Optimize with NULLS" 
+                    setattr(new_msg,field["Name"],value)
                 if "IUUC_OPERATION" in col:
                     setattr(new_msg,"_CHANGE_TYPE","DELETE" if value == "D" else "UPSERT")
                 count+=1
