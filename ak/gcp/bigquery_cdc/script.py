@@ -134,7 +134,7 @@ def print_info():
     api.send("info", f'rootPath = "{gs_rootpath}"')
     api.send("info", f'sourcetable = "{gs_sourcetable}"')
     api.send("info", f'target = "{gs_project_id}.{gs_dataset}.{gs_targettable}"')
-    api.send("info", f'Optimize method = "{optimize_method}"'
+    api.send("info", f'Optimize method = "{optimize_method}"')
 
     # Connect
     keyfile = api.config.bigquery['connectionProperties']['keyFile']
