@@ -14,6 +14,8 @@ VERSION_UPDATE = [  "2023-07-26 - Updated handling of timestamps: 9999-99-99 -> 
                     "2023-08-08 - added two now config items; alpha_conversion -> remove leading zeros, insert_timestamp -> timestamp when changed",
                     ]
 
+ONCE_FLAG = True
+
 # Standard class for handling ABAP metadata - included in operator folder
 #from ABAPmeta import ABAPmeta
 ##
@@ -144,6 +146,7 @@ class AbapMeta:
 
 # INPUT handler - getting "message" data with ABAP info
 def on_input(data):
+    global ONCE_FLAG
     # Infusing attributes with information acquired by this operator
     data.attributes["ak.abap.cleansed"] = api.config.optimize_for_bigquery  # pass through that we have used the ABAP Data Transform
     data.attributes["ak.abap.data_transformer"] = api.config.optimize_for_bigquery  # Used by AbapMeta class
@@ -160,10 +163,12 @@ def on_input(data):
     # TODO: Send this info once pr run, also add info about which columns are affected
     #       by transformations - building an infobuffer and send all at once
     #
-    api.send("info","\nInput data columns\n---------------------")
-    for k, v in m.col_types.items():
-        api.send("info",f"Name:{k}, Kind:{v['Kind']}")
-    
+    if ONCE_FLAG:
+        col_info = "\nInput data columns\n---------------------"
+        for k, v in m.col_types.items():
+            col_info += "\n" + f"Name:{k}, Kind:{v['Kind']}"
+        api.send("info",col_info)
+        ONCE_FLAG = False
     #schema = {c: pa.string() for c in m.col_names}  # Replaced with code below
     schema = m.pyarrow_schema()
     strings_can_be_null = m.pyarrow_strings_can_be_null()
@@ -257,6 +262,7 @@ def gen():
     api.send("info", "Provides cleansing of ABAP datatypes, especially dates and timestamps")
     for vu in VERSION_UPDATE:
         api.send("info", f"{vu}")
+        
     api.send("info", f"Installed pyarrow versjon = {pa.__version__} >= 11.0.0")
     api.send("info", "")
     
