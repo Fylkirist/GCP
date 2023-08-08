@@ -12,10 +12,6 @@
         {
             "name": "info",
             "type": "string"
-        },
-        {
-            "name": "output",
-            "type": "message"
         }
     ],
     "icon": "table",

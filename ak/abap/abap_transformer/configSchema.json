@@ -14,11 +14,24 @@
             "type": "string",
             "enum": [
                 "Passthrough",
-                "Optimize"
+                "Optimize",
+                "Optimize with NULLS"
             ]
+        },
+        "alpha_conversion": {
+            "title": "ALPHA Conversion",
+            "description": "Remove leading zeros in NUMC columns with ALPHA conversion",
+            "type": "boolean"
+        },
+        "insert_timestamp": {
+            "title": "Add separate column for inserted/updated timestamp",
+            "description": "Add a timestamp column in target for when data changes",
+            "type": "boolean"
         }
     },
     "required": [
-        "optimize_for_bigquery"
+        "optimize_for_bigquery",
+        "alpha_conversion",
+        "insert_timestamp"
     ]
 }

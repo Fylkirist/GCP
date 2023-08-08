@@ -12,15 +12,11 @@ from google.protobuf.internal import builder as _builder
 
 _sym_db = _symbol_database.Default()
 
-buffer_dict = {}
-
-
 # Load necessary high-level APIs
 from google.oauth2 import service_account
 from google.cloud import bigquery
 from google.cloud import storage
 from google.cloud.exceptions import NotFound
-import json, csv, sys
 from google.cloud.bigquery.table import TableReference
 from google.cloud.bigquery_storage_v1.services.big_query_write.async_client import (
     BigQueryWriteAsyncClient,
@@ -34,13 +30,10 @@ from typing import AsyncIterable, AsyncIterator, Optional, Sequence, Union
 from io import StringIO
 from google.protobuf.descriptor_pb2 import DescriptorProto
 from google.protobuf.message import Message
-import asyncio
-# Load necessary high-level APIs
-from google.oauth2 import service_account
-from google.cloud import bigquery
-from google.cloud import storage
-from google.cloud.exceptions import NotFound
+
 import json, csv, sys
+import asyncio
+from datetime import datetime
 
 #Credentials for Google Cloud platform
 def gcp_creds( keyfile_content : dict, ):
@@ -48,64 +41,23 @@ def gcp_creds( keyfile_content : dict, ):
     return gcp_credentials
 
 # Global variables
-gs_client = None
-gs_project_id = None
-gs_sourcetable = None
-gs_dataset = None
-gs_targettable = None
-gs_rootpath = None
-gs_selected_proto = None
 table_struct = None
-optimize_method = None
-# AK: Use internal buffer_dict for message structure - if False - get structure from "Google BigQuery Protocompiler" 
-use_buffer_dict = False
-
-# Get the required propertiers from the environment ands store into global variables for reuse
-def get_properties():
-    global gs_client, gs_rootpath, gs_project_id, gs_dataset, gs_targettable, gs_sourcetable
-        
-    # TODO - may use a try catch
-    
-    # Examine the ConnectionProperties object
-    # ---------------------------------------
-    # GCS connection config: projectId, keyFile, rootPath - NB! rootPath may be empty
-    # GCP_BIGQUERY connection config: projectId, keyFile,  additionalRegions (not used by this operator)
-    # https://vsystem.ingress.dh-zqghmzcj.dhaas-live.shoot.live.k8s-hana.ondemand.com/app/datahub-app-connection/connections?connectionTypes=GCS
-    conn_props = api.config.bigquery['connectionProperties']
-    gs_project_id = conn_props['projectId']
-    gs_rootpath = conn_props['rootPath'] if 'rootPath' in conn_props else None 
-    gs_sourcetable = api.config.sourcetable
-    gs_dataset = api.config.targetdataset
-    gs_targettable = api.config.targettable
 
 # Printing useful input about the environment to the "info" port -> str
 def print_info():
-    global gs_client, gs_rootpath, gs_project_id, gs_dataset, gs_targettable, gs_sourcetable
     
     # What version do we use for Gen1
     api.send("info", f'Python version = {sys.version}')
     api.send("info", 'AK (2023-07-13): Version 1.0 - Have message dict for 5 tables - can also get message desc through protocompiler')
     api.send("info","AK (2023-07-24): Version 1.1 - Added dependency to understand if protocompiler is present in pipeline")
-    
-    # Fill in properties into global variables
-    get_properties()
+    api.send("info","AK (2023-08-08): Version 1.2 - Removed unnecessary globals, removed buffer dict, timestamping is now handled by data transformer, message definition now only happens once")
     
     # Connection properties
+    conn_props = api.config.bigquery['connectionProperties']
     api.send("info", f'')
-    api.send("info", f'projectID = "{gs_project_id}"')
-    api.send("info", f'rootPath = "{gs_rootpath}"')
-    api.send("info", f'sourcetable = "{gs_sourcetable}"')
-    api.send("info", f'target = "{gs_project_id}.{gs_dataset}.{gs_targettable}"')
-    #api.send("info", f'Optimize method = "{optimize_method}"')
-
-    # Connect
-    keyfile = api.config.bigquery['connectionProperties']['keyFile']
-    gs_client = gs_client or BigQueryWriteAsyncClient(credentials=gcp_creds(keyfile))
-
-    if gs_client : 
-        api.send("info", f'Connected successfully to {gs_project_id}')
-    else :
-        api.send("info", 'Connect not successful.....')
+    api.send("info", f'projectID = "{conn_props["projectId"]}"')
+    api.send("info", f'rootPath = "{conn_props["rootPath"] if "rootPath" in conn_props else None}"')
+    api.send("info", f'target = "{conn_props["projectId"]}.{api.config.targetdataset}.{api.config.targettable}"')
         
 
 # Create an async iterator where each message batch is less than the input size, bigquery default stream has a 10MB limit per stream.
@@ -190,9 +142,9 @@ async def default_stream_to_bq(table,messages,client):
 
 # Parse the CSV and schema to return a list of message objects that conform to the proto schema
 def parse_input(data):
-    global table_struct, optimize_method
-    #optimize_method = api.config["ak.abap.data_transformer"] if "ak.abap.data_transformer" in api.config else None  # 2023-07-27 check for presence of Data Transform
-    optimize_method = data.attributes.get("ak.abap.data_transformer")  # Not checked if this is possible
+    global table_struct
+    # 2023-07-27 check for presence of Data Transform
+    optimize_method = data.attributes.get("ak.abap.data_transformer")  # Get Optimize method if any
     api.send("info", f'Optimize method = "{optimize_method}"')
 
     body = list(csv.reader(StringIO(data.body)))
@@ -215,7 +167,7 @@ def parse_input(data):
             for col,field in table_struct.items():
                 value = row[count]
                 # if the data has been through the abap transformer, we can skip typing for the message.
-                if data.attributes["ak.abap.abap_transformer"] and data.attributes["ak.abap.abap_transformer"] == "Optimize":
+                if optimize_method == "Optimize":
                     pass
                 elif field["Kind"] == 'C': # BK - remove checking the opther options
                     pass
@@ -236,36 +188,19 @@ def parse_input(data):
     return output
 
 def select_proto(data):
-    global gs_selected_proto, use_buffer_dict
-    gs_selected_proto = api.config.sourcetable
-    if gs_selected_proto == "":
-        return
-    # Check if protocompiler is in the pipeline
-    if "ak.gcp.protocompiler" in data.attributes:
-        use_buffer_dict = False
-    else:
-        use_buffer_dict = True
-    
-    if use_buffer_dict:
-        DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(buffer_dict[gs_selected_proto]['bytes'])
+    if not data.attributes['proto_struct']:
+        api.logger.error("No message struct detected in input: Proto compiler missing in pipeline.")
 
-        _globals = globals()
-        _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-        _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'TUNIT_pb2', _globals)
-        if _descriptor._USE_C_DESCRIPTORS == False:
-            DESCRIPTOR._options = buffer_dict[gs_sourcetable]['options']
-            _globals['_TUNIT']._serialized_start = buffer_dict[gs_selected_proto]['start']
-            _globals['_TUNIT']._serialized_end = buffer_dict[gs_selected_proto]['end']
-    else:
-        DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(eval(data.attributes['proto_struct']['bytes']))
-        _globals = globals()
-        _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-        _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'TUNIT_pb2', _globals)
-        if _descriptor._USE_C_DESCRIPTORS == False:
-            DESCRIPTOR._options = None
-            _globals['_TUNIT']._serialized_start = data.attributes['proto_struct']['start']
-            _globals['_TUNIT']._serialized_end = data.attributes['proto_struct']['end']
-    api.send("info",gs_selected_proto)
+    _globals = globals()
+    if "TUNIT" in _globals:
+        return
+    DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(eval(data.attributes['proto_struct']['bytes']))
+    _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
+    _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'TUNIT_pb2', _globals)
+    if _descriptor._USE_C_DESCRIPTORS == False:
+        DESCRIPTOR._options = None
+        _globals['_TUNIT']._serialized_start = data.attributes['proto_struct']['start']
+        _globals['_TUNIT']._serialized_end = data.attributes['proto_struct']['end']
 
 
 ## This is the main input operator - getting data from the input port
@@ -277,7 +212,7 @@ def on_input(data):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(
         default_stream_to_bq(
-            f"{gs_project_id}.{gs_dataset}.{gs_targettable}",
+            f"{api.config.bigquery['connectionProperties']['projectId']}.{api.config.targetdataset}.{api.config.targettable}",
             messages,
             BigQueryWriteAsyncClient(credentials=gcp_creds(api.config.bigquery['connectionProperties']['keyFile']))  
         )

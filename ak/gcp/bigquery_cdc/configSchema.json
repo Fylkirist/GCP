@@ -26,23 +26,9 @@
                 }
             }
         },
-        "sourcetable": {
-            "title": "Source table type",
-            "description": "Supports only predefined tables (message buffer)",
-            "readOnly": true,
-            "type": "string",
-            "enum": [
-                "..Select table......",
-                "TUNIT",
-                "tu_dlv",
-                "tu_status",
-                "zewm_tu_dlv",
-                "tu_sr_act"
-            ]
-        },
         "targetdataset": {
             "title": "BigQuery dataset",
-            "description": "Which dataset will the table be in",
+            "description": "Which dataset contains the table",
             "type": "string"
         },
         "targettable": {
@@ -52,7 +38,7 @@
         }
     },
     "required": [
-        "sourcetable",
+        "bigquery",
         "targetdataset",
         "targettable"
     ]

@@ -17,8 +17,7 @@
     "icon": "bitbucket-square",
     "config": {
         "$type": "http://sap.com/vflow/ak.gcp.bigquery_cdc.configSchema.json",
-        "script": "file://script.py",
-        "sourcetable": "..Select table......"
+        "script": "file://script.py"
     },
     "tags": {
         "biqquery": ""

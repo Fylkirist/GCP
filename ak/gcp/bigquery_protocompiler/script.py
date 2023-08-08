@@ -23,7 +23,7 @@ def parse_and_compile(data):
     # However - metadata may contain object info not materialized like ".INCLUDE" and ".APPEND"
     for row in mydict['ABAP']['Fields']:
         colname = row['Name']
-        if colname not in ['TABLE_NAME', 'IUUC_OPERATION']:
+        if colname not in ['TABLE_NAME', 'IUUC_OPERATION', 'INSERT_TS']:
             r = next(abapmeta)
             #print(f"colname = {colname}, {r['Field']['COLUMNNAME']}")
             while r['Field']['COLUMNNAME'] != colname:
@@ -52,7 +52,7 @@ def parse_and_compile(data):
         bq_colname = field[0].replace('/','_')
         if field[1] in ['C', 'X', 'D','N'] :
             bq_dt = "string"
-        elif field[1] in ['s', 'I'] :
+        elif field[1] in ['s', 'I', 'Z'] :
             bq_dt = "int64"
         elif field[1] in 'P' :
             bq_dt = "float"

@@ -21,6 +21,8 @@
     "iconsrc": "banded-columns.svg",
     "config": {
         "$type": "http://sap.com/vflow/ak.abap.abap_transformer.configSchema.json",
+        "alpha_conversion": false,
+        "insert_timestamp": false,
         "optimize_for_bigquery": "Passthrough",
         "script": "file://script.py"
     },

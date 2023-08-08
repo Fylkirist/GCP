@@ -41,3 +41,9 @@ class ABAPmeta:
     @classmethod
     def meta( cls, colname) :
         return cls.col_meta[colname]
+    @classmethod
+    def set_abap_kind(cls, colname, kind):
+        if colname in cls.col_types:
+            cls.col_types[colname]["Kind"] = kind
+        else:
+            raise Exception( f"ABAPmeta: Could not set {colname} to {type}, the column name do not exist in structure!")

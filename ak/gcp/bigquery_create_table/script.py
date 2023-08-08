@@ -7,8 +7,8 @@
 ## BK: 2023-07-14 - Updated meatdata structure - changed data types and added (max_length)
 ## BK: 2023-07-19 - Updated table structure to use DATE end TIME for Kind:"D" and "T"
 ## BK: 2023-07-24 - Updated with new Kind=Z - create timestamp column in BigQuery
-##
 ## AK: 2023-07-24 - Operator now checks if table exists and does alter sql upon table creation
+## BK: 0223-08-07 - When Numeric scale is larger than 9, or precision larger than 38, use BIGNUMERIC
 ##
 
 # Load necessary high-level APIs
@@ -66,12 +66,13 @@ def print_info():
     global bq_client, gs_rootpath, gs_project_id, gs_dataset, gs_targettable, gs_table_id
     
     # What version do we use for Gen1
-    api.send('info', 'Google BigQuery Table Producer v0.9')
-    api.send('info', '-----------------------------------')
-    api.send("info", f'Python version = {sys.version}')
-    api.send("info", 'AK (2023-07-14): Work in progress')
+    api.send('info', "Google BigQuery Table Producer v0.95")
+    api.send('info', "-----------------------------------")
+    api.send("info", f"Python version = {sys.version}")
+    api.send("info", "AK (2023-07-14): First version")
     api.send("info", "BK (2023-07-19): TIME datatype added")
     api.send("info", "BK (2023-07-24): TIMESTAMP datatype added")
+    api.send("info", "BK (2023-08-07): BIGNUMERIC datatype added (precision >38 and scale>9)")
     
     
     # Fill in properties into global variables
@@ -109,7 +110,7 @@ def create_table(mydict):
     # However - metadata may contain object info not materialized like ".INCLUDE" and ".APPEND"
     for row in mydict['ABAP']['Fields']:
         colname = row['Name']
-        if colname not in ['TABLE_NAME', 'IUUC_OPERATION']:
+        if colname not in ['TABLE_NAME', 'IUUC_OPERATION', "INSERT_TS"]:
             r = next(abapmeta)
             #print(f"colname = {colname}, {r['Field']['COLUMNNAME']}")
             while r['Field']['COLUMNNAME'] != colname:
@@ -141,8 +142,9 @@ def create_table(mydict):
         elif field[1] in ['s', 'I', ] :
             gbq_field = bigquery.SchemaField(bq_colname, 'INTEGER', mode = 'NULLABLE' )
         elif field[1] in ['P', ] :
-            # Pakced numeric, precision and scale from metadata, not ABAP
-            gbq_field = bigquery.SchemaField(bq_colname, 'NUMERIC', mode = 'NULLABLE', precision = field[7], scale = field[3] )
+            # Packed numeric, precision and scale from metadata, not ABAP - this is a NUMERIC, BIGNUMERIC or FLOAT type
+            _datatype = "NUMERIC" if (field[7] <=38 and field[3] <= 9) else "BIGNUMERIC"
+            gbq_field = bigquery.SchemaField(bq_colname, _datatype, mode = 'NULLABLE', precision = field[7], scale = field[3] )
         elif field[1] in ['D', ] :
             gbq_field = bigquery.SchemaField(bq_colname, 'DATE', mode = 'NULLABLE' )
         elif field[1] in ['T'] :
@@ -171,14 +173,14 @@ def create_table(mydict):
     
     # Creating SQL to ALTER table for CDC support
     # BK (2023-07-25) - need to quote objects with backtick(`) - some project ids may contain special chars
-    #sql1 = f"ALTER TABLE `{gs_table_id}` SET OPTIONS ( max_staleness = INTERVAL 15 MINUTE);"
-    sql1 = f"ALTER TABLE {table.dataset_id}.{table.table_id} SET OPTIONS ( max_staleness = INTERVAL 15 MINUTE);"
+    sql1 = f"ALTER TABLE `{gs_table_id}` SET OPTIONS ( max_staleness = INTERVAL 15 MINUTE);"
+    #sql1 = f"ALTER TABLE {table.dataset_id}.{table.table_id} SET OPTIONS ( max_staleness = INTERVAL 15 MINUTE);"
     
     # Find keys
     keys = [ a[0]   for a in meta if a[5] == 'X']
     # BK (2023-07-25) - need to quote objects with backtick(`) - some project ids may contain special chars
-    #sql2 = f"ALTER TABLE `{gs_table_id}` ADD PRIMARY KEY ( { ','.join(keys)} ) NOT ENFORCED;"
-    sql2 = f"ALTER TABLE {table.dataset_id}.{table.table_id} ADD PRIMARY KEY ( { ','.join(keys)} ) NOT ENFORCED;"
+    sql2 = f"ALTER TABLE `{gs_table_id}` ADD PRIMARY KEY ( { ','.join(keys)} ) NOT ENFORCED;"
+    #sql2 = f"ALTER TABLE {table.dataset_id}.{table.table_id} ADD PRIMARY KEY ( { ','.join(keys)} ) NOT ENFORCED;"
 
     query = f"{sql1}\n{sql2}"
     request = bq_client.query(query)
