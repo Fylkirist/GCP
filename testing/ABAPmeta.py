@@ -115,9 +115,8 @@ if __name__ == "__main__":
     import pyarrow.csv as csv
 
     # Reading in JSON file and CSV file for SR_ACT
-    PATH = "/Users/I070499/Library/CloudStorage/OneDrive-SAPSE/DEVELOP/HM"
-    JSON_FILE = PATH + "/" + "SLT_TU_SR_ACT/slt_info_tu_sr_act_initial.json"
-    # JSON_FILE =  PATH + '/' + 'SLT-TU_STATUS/slt_info_tu_status_replication.json'
+    PATH = "<mypath>"
+    JSON_FILE = PATH + "/" + "tu_sr_act_initial.json"
 
     with open(JSON_FILE, "r") as f:
         mydict = json.load(f)
