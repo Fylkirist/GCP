@@ -159,10 +159,6 @@ def on_input(data):
         api.send("info", "Received lastBatch=True message from ABAP source operator")
         return
         
-
-    # TODO: Send this info once pr run, also add info about which columns are affected
-    #       by transformations - building an infobuffer and send all at once
-    #
     if ONCE_FLAG:
         col_info = "\nInput data columns\n---------------------"
         for k, v in m.col_types.items():
@@ -198,7 +194,7 @@ def on_input(data):
             py = pc.utf8_slice_codeunits(table_col,0,19).to_pylist()
             mask = pc.match_substring(table_col, "9999-99-99T",)
             nc = pa.array(py, type=pa.string(), mask=mask.combine_chunks()).cast(pa.timestamp("us"))  # Expect local TZ
-            nc = pc.assume_timezone(nc, "CET",ambiguous="earliest")
+            nc = pc.assume_timezone(nc, "UTC",ambiguous="earliest")
             new_array.append(nc.cast(pa.int64()))
             # Change data type to Z for timestamp if "Optimize"
             if m.optimize_method in [m.OPTIMIZE, m.OPTIMIZE_WITH_NULLS] :

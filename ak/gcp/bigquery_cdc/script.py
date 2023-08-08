@@ -14,8 +14,6 @@ _sym_db = _symbol_database.Default()
 
 # Load necessary high-level APIs
 from google.oauth2 import service_account
-from google.cloud import bigquery
-from google.cloud import storage
 from google.cloud.exceptions import NotFound
 from google.cloud.bigquery.table import TableReference
 from google.cloud.bigquery_storage_v1.services.big_query_write.async_client import (
@@ -171,7 +169,7 @@ def parse_input(data):
                 elif field["Kind"] == 'C': # BK - remove checking the opther options
                     pass
                 elif field["Kind"] in ['s', 'I','Z']:
-                    value = int(value) if len(value) > 0 else 0
+                    value = int(value) if len(value) > 0 else None
                 elif field["Kind"] in ['P']:
                     value = float(value)
                 elif field["Kind"] in ['D'] and value == "9999-99-99":  # BK check if date is out of range
