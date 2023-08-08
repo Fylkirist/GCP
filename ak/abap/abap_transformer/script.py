@@ -1,19 +1,14 @@
 ##
-## Module to use pyarrow to optimze data in the body - make ABAP data compliant with target system
+## Module to use pyarrow to otpimze data in the body - make ABAP data compliant with target system
 ##
 import io
 import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.csv as csv
 import json, sys
+from datetime import datetime
 
-# parameters to pass through message.attrribtutes { "ak.abap.abap_transformer" : "Optimize ^ Passthrough"
-# defines the behaviour of the ABAP Data Transformer operator
-optimize_method = None
-alpha_conversion = None
-insert_timestamp = None
-
-VERSION = "0.85"  # UPdated 2023-08-07
+VERSION = "0.86"  # Updated 2023-08-08
 VERSION_UPDATE = [  "2023-07-26 - Updated handling of timestamps: 9999-99-99 -> '0000-01-01' ",
                     "2023-07-31 - csv.WriteOptions() changed quoting_style from 'none' to 'needed' ",
                     "2023-08-08 - added two now config items; alpha_conversion -> remove leading zeros, insert_timestamp -> timestamp when changed",
@@ -149,13 +144,11 @@ class AbapMeta:
 
 # INPUT handler - getting "message" data with ABAP info
 def on_input(data):
-    # TODO - not clean - in gen() we set global attributes based on api.config. Then in this data handler
-    #        we do set these properties in the attributes structure, which then is used in the AbapMeta object
     # Infusing attributes with information acquired by this operator
-    data.attributes["ak.abap.cleansed"] = optimize_method  # pass through that we have used the ABAP Data Transform
-    data.attributes["ak.abap.data_transformer"] = optimize_method  # Used by AbapMeta class
-    data.attributes["ak.abap.alpha_conversion"] = alpha_conversion  # Boolean value if Alpha is trimmed for leading zeros
-    data.attributes["ak.abap.insert_timestamp"] = insert_timestamp  # Boolean value if we have added a timestamp
+    data.attributes["ak.abap.cleansed"] = api.config.optimize_for_bigquery  # pass through that we have used the ABAP Data Transform
+    data.attributes["ak.abap.data_transformer"] = api.config.optimize_for_bigquery  # Used by AbapMeta class
+    data.attributes["ak.abap.alpha_conversion"] = api.config.alpha_conversion  # Boolean value if Alpha is trimmed for leading zeros
+    data.attributes["ak.abap.insert_timestamp"] = api.config.insert_timestamp  # Boolean value if we have added a timestamp
     m = AbapMeta(data.attributes) # reorg of attributes
     # Check if EOF message (Initial Load scenario)
     if m.lastBatch == True:
@@ -193,39 +186,31 @@ def on_input(data):
         
         #desc = m.meta(colname) # Using meta class object
         desc = m.col_meta[colname] # Using meta class object
-        table_col = table[colname] if colname != "INSERT_TS" else None 
-        if 1==2 and desc["MD_DOMNAME"] == "TZNTSTMPS": # Deprecated implementation
-            nc = pc.utf8_slice_codeunits(table_col,0,19)
-            nc = pc.replace_substring( nc, "-99-99", "-12-31")
-            nc = pc.replace_substring( nc, "99:99:99", "23:59:59")
-            new_array.append(nc.cast(pa.timestamp("us")))
-            # Change data type to Z for timestamp if "Optimize"
-            if optimize_method == "Optimize" :
-                m.set_abap_kind(colname, "Z")
-                api.send("info", f"{colname} is optimized to kind Z")
-        elif desc["MD_DOMNAME"] == "TZNTSTMPS":  # New implementation - 2023-07-27
+        table_col = table[colname] if colname != "INSERT_TS" else None  # TS_INSERT column is not in the data, will be created here
+        if desc["MD_DOMNAME"] == "TZNTSTMPS":  # New implementation - 2023-07-27 and improved 2023-08-08
             # ["2016-11-08T11:05:27.0000000", "9999-99-99T99:99:99.9999999"] to # ["2016-11-08T11:05:27", null]
             # Alt. solution; since these are strings, pc_replace_substring(table_col,"9999-99-99T99:99:99.9999999","")
             py = pc.utf8_slice_codeunits(table_col,0,19).to_pylist()
             mask = pc.match_substring(table_col, "9999-99-99T",)
-            nc = pa.array(py, type=pa.string(), mask=mask.combine_chunks())
-            new_array.append(nc.cast(pa.timestamp("us")))
+            nc = pa.array(py, type=pa.string(), mask=mask.combine_chunks()).cast(pa.timestamp("us"))  # Expect local TZ
+            nc = pc.assume_timezone(nc, "CET")
+            new_array.append(nc.cast(pa.int64()))
             # Change data type to Z for timestamp if "Optimize"
-            if optimize_method in [m.OPTIMIZE, m.OPTIMIZE_WITH_NULLS] :
+            if m.optimize_method in [m.OPTIMIZE, m.OPTIMIZE_WITH_NULLS] :
                 m.set_abap_kind(colname, "Z")
                 api.send("info", f"{colname} is optimized to kind Z")
         elif desc["MD_DOMNAME"] == "MEINS":
-            # Unit domain uses undfeined when it is not configured - switch to empty string
+            # Unit domain uses 'undefined' when it is not configured - switch to empty string
             nc = pc.replace_substring( table_col, "undefined", "")
             new_array.append(nc)
         elif desc["MD_DOMNAME"] in ["/SCMB/TMDL_TZNTSTMPS","/SCWM/DO_TIMESTAMP_WH" ]:  # these are timestamps ""
             # Datetime datatype [20230703171513, 0] ->> ["20230703171513", ""] 
             nc = pc.replace_substring_regex( table_col.cast(pa.string()), "^[0]$", "")
             # Change data type to Z for timestamp if "Optimize"
-            if optimize_method in [m.OPTIMIZE, m.OPTIMIZE_WITH_NULLS] :
+            if m.optimize_method in [m.OPTIMIZE, m.OPTIMIZE_WITH_NULLS] :
                 mask = pc.match_substring_regex(nc, "^$",)
                 nc = pa.array(nc.to_pylist(), type=pa.string(), mask=mask.combine_chunks())
-                nc = pc.strptime(nc, "%Y%m%d%H%M%S", "s")
+                nc = pc.strptime(nc, "%Y%m%d%H%M%S", "us").cast(pa.int64())  # Google BigQuery internal storage is in microseconds
                 m.set_abap_kind(colname, "Z")
                 api.send("info", f"{colname} is optimized to kind Z")
             new_array.append(nc)
@@ -236,13 +221,12 @@ def on_input(data):
             nc =pc.utf8_slice_codeunits(table_col,0,8)
             new_array.append(nc)
         elif desc["MD_DOMNAME"] in ["/SCWM/DO_TU_NUM",] and m.alpha_conversion:   # ALPHA conversion
-            pass  # TODO remove leading zeros
-            nc = table_col.cast(pa.int64()).cast(pa.string())
+            # nc = table_col.cast(pa.int64()).cast(pa.string())  # Works only on numeric strings
+            nc = pc.ascii_ltrim(table_col,"0")  # Remove leading character - if string only contains zeros, empty string will be returned
             new_array.append(nc)
         elif colname in ["INSERT_TS",]:
-            # TODO: May change this to an optimized integer array with timestamp in milliseconds inserted here
-            #       - requires a change in the CDC writer and this code to only use milliseconds for timestamp type
-            nc = pa.nulls(table.num_rows)  # Add a null column for timestamp - value gets inserted in CDC writer
+            #nc = pa.nulls(table.num_rows)  # Add a null column for timestamp - value gets inserted in CDC writer
+            nc = pa.array([int(datetime.now().timestamp() * 1e6)]*len(table))  # Timestamp values inserted using microseconds
             new_array.append(nc)
         else:
             new_array.append(table_col)
@@ -269,7 +253,6 @@ def on_input(data):
 
 # Initial info about the ABAP Transformer Operator
 def gen():
-    global optimize_method, alpha_conversion, insert_timestamp
     api.send("info", f"ABAP Data Transformer version {VERSION}")
     api.send("info", "Provides cleansing of ABAP datatypes, especially dates and timestamps")
     for vu in VERSION_UPDATE:
@@ -278,12 +261,9 @@ def gen():
     api.send("info", "")
     
     # Fetching which behavior to use in the ABAP Data Transformer
-    optimize_method = api.config.optimize_for_bigquery
-    alpha_conversion = api.config.alpha_conversion
-    insert_timestamp = api.config.insert_timestamp     
-    api.send("info", f'ak.abap.abap_transformer : "{optimize_method}"')
-    api.send("info", f'ak.abap.alpha_conversion : "{alpha_conversion}"')
-    api.send("info", f'ak.abap.insert_timestamp : "{insert_timestamp}"')
+    api.send("info", f'ak.abap.abap_transformer : "{api.config.optimize_for_bigquery}"')
+    api.send("info", f'ak.abap.alpha_conversion : "{api.config.alpha_conversion}"')
+    api.send("info", f'ak.abap.insert_timestamp : "{api.config.insert_timestamp}"')
     api.send("info", "")
 
 
