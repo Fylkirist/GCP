@@ -97,7 +97,7 @@ The general performance of this replication process is quite fast. However we ma
 
 ### Conclusion
 
-This package has been developed during a PoC, and have added features as the requirements evolved.  It can easily be extended with more features, snice it utilize the powerful capability of Custom Operators within SAP Data Intelligence Cloud.
+This package has been developed during a PoC, and have added features as the requirements evolved.  It can easily be extended with more features, since it utilizes the powerful capability of Custom Operators within SAP Data Intelligence Cloud.
 
 ## Requirements
 SAP Data Intelligence Cloud, DMIS 2011 or newer installed on source system. DMIS must adhere to latest SP available.
