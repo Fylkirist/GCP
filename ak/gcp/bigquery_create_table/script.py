@@ -8,7 +8,8 @@
 ## BK: 2023-07-19 - Updated table structure to use DATE end TIME for Kind:"D" and "T"
 ## BK: 2023-07-24 - Updated with new Kind=Z - create timestamp column in BigQuery
 ## AK: 2023-07-24 - Operator now checks if table exists and does alter sql upon table creation
-## BK: 0223-08-07 - When Numeric scale is larger than 9, or precision larger than 38, use BIGNUMERIC
+## BK: 2023-08-07 - When Numeric scale is larger than 9, or precision larger than 38, use BIGNUMERIC
+## AK: 2023-08-08 - Removed unnecessary code
 ##
 
 # Load necessary high-level APIs
@@ -16,21 +17,13 @@ from google.oauth2 import service_account
 from google.cloud import bigquery
 from google.cloud import storage
 from google.cloud.exceptions import NotFound
-import json, csv, sys
+import json, sys
 
 #Credentials for Google Cloud platform
 def gcp_creds( keyfile_content : dict, ):
     gcp_credentials = service_account.Credentials.from_service_account_info(json.loads(keyfile_content))
     return gcp_credentials
 
-# Global variables
-bq_client = None
-gs_project_id = None
-gs_sourcetable = None
-gs_dataset = None
-gs_targettable = None
-gs_rootpath = None
-gs_table_id = None
 # Once flag
 once_flag = True
 
@@ -41,30 +34,8 @@ def check_table_exists(table,client):
     except NotFound:
         return False
 
-# Get the required properties from the environment and store into global variables for reuse
-def get_properties():
-    global bq_client, gs_rootpath, gs_project_id, gs_dataset, gs_targettable, gs_sourcetable, gs_table_id
-        
-    # TODO - may use a try catch
-    
-    # Examine the ConnectionProperties object
-    # ---------------------------------------
-    # GCS connection config: projectId, keyFile, rootPath - NB! rootPath may be empty
-    # GCP_BIGQUERY connection config: projectId, keyFile,  additionalRegions (not used by this operator)
-    # https://vsystem.ingress.dh-zqghmzcj.dhaas-live.shoot.live.k8s-hana.ondemand.com/app/datahub-app-connection/connections?connectionTypes=GCS
-    conn_props = api.config.bigquery['connectionProperties']
-    gs_project_id = conn_props['projectId']
-    gs_rootpath = conn_props['rootPath'] if 'rootPath' in conn_props else None 
-    #gs_sourcetable = api.config.sourcetable
-    gs_dataset = api.config.targetdataset
-    gs_targettable = api.config.targettable
-    gs_table_id = f'{gs_project_id}.{gs_dataset}.{gs_targettable}'
-    
-
 # Printing useful input about the environment to the "info" port -> str
 def print_info():
-    global bq_client, gs_rootpath, gs_project_id, gs_dataset, gs_targettable, gs_table_id
-    
     # What version do we use for Gen1
     api.send('info', "Google BigQuery Table Producer v0.95")
     api.send('info', "-----------------------------------")
@@ -73,31 +44,19 @@ def print_info():
     api.send("info", "BK (2023-07-19): TIME datatype added")
     api.send("info", "BK (2023-07-24): TIMESTAMP datatype added")
     api.send("info", "BK (2023-08-07): BIGNUMERIC datatype added (precision >38 and scale>9)")
-    
-    
-    # Fill in properties into global variables
-    get_properties()
+    api.send("info", "AK (2023-08-08): Cleanup")
     
     # Connection properties
+    conn_props = api.config.bigquery['connectionProperties']
+    table_id = f"{api.config.bigquery['connectionProperties']['projectId']}.{api.config.targetdataset}.{api.config.targettable}"
     api.send("info", f'')
-    api.send("info", f'projectID = "{gs_project_id}"')
-    api.send("info", f'rootPath = "{gs_rootpath}"')
-    api.send("info", f'target = "{gs_table_id}"\n' )
+    api.send("info", f'projectID = "{conn_props["projectId"]}"')
+    api.send("info", f'rootPath = "{conn_props["rootPath"] if "rootPath" in conn_props else None }"')
+    api.send("info", f'target = "{table_id}"\n' )
 
-    # Connect
-    keyfile = api.config.bigquery['connectionProperties']['keyFile']
-    bq_client = bq_client or bigquery.Client(credentials=gcp_creds(keyfile))
 
-    if bq_client : 
-        api.send("info", f'Connected successfully to {gs_project_id}')
-    else :
-        api.send("info", 'Connect not successful.....')
-        
-
-def create_table(mydict):
-    global bq_client, gs_table_id
+def create_table(mydict,client):
     # Create a BigQuery Table based on metadata
-    
 
     # DONE
     # The SAP metadata required to understand data structure and build external artifacts
@@ -159,31 +118,32 @@ def create_table(mydict):
     
     #print(schema)
     
-    table = bigquery.Table(gs_table_id, schema=schema)
+    table_id = f"{api.config.bigquery['connectionProperties']['projectId']}.{api.config.targetdataset}.{api.config.targettable}"
+    table = bigquery.Table(table_id, schema=schema)
     
     #table.clustering_fields = ["MANDT", "TU_NUM"]
     # INfo about key is in column 6 og meta structure, name in column 1 (max 4 columns clustered)
     table.clustering_fields = [ a[0].replace('/','_')   for a in meta if a[5] == 'X'][:4]
     
     # Create table object
-    table = bq_client.create_table(table)  # Make an API request.
+    table = client.create_table(table)  # Make an API request.
     api.send( "info",
         "Created clustered table {}.{}.{}".format(table.project, table.dataset_id, table.table_id),
     )
     
     # Creating SQL to ALTER table for CDC support
     # BK (2023-07-25) - need to quote objects with backtick(`) - some project ids may contain special chars
-    sql1 = f"ALTER TABLE `{gs_table_id}` SET OPTIONS ( max_staleness = INTERVAL 15 MINUTE);"
+    sql1 = f"ALTER TABLE `{table_id}` SET OPTIONS ( max_staleness = INTERVAL 15 MINUTE);"
     #sql1 = f"ALTER TABLE {table.dataset_id}.{table.table_id} SET OPTIONS ( max_staleness = INTERVAL 15 MINUTE);"
     
     # Find keys
     keys = [ a[0]   for a in meta if a[5] == 'X']
     # BK (2023-07-25) - need to quote objects with backtick(`) - some project ids may contain special chars
-    sql2 = f"ALTER TABLE `{gs_table_id}` ADD PRIMARY KEY ( { ','.join(keys)} ) NOT ENFORCED;"
+    sql2 = f"ALTER TABLE `{table_id}` ADD PRIMARY KEY ( { ','.join(keys)} ) NOT ENFORCED;"
     #sql2 = f"ALTER TABLE {table.dataset_id}.{table.table_id} ADD PRIMARY KEY ( { ','.join(keys)} ) NOT ENFORCED;"
 
     query = f"{sql1}\n{sql2}"
-    request = bq_client.query(query)
+    request = client.query(query)
 
     for thing in request:
         api.send("info",str(thing))
@@ -196,19 +156,26 @@ def on_input(data):
     global once_flag
     # TODO - check if we get the right message in with the required fields
     # Check if we have a valid ABAP and metadata structure
+    bq_client = bigquery.Client(credentials=gcp_creds(api.config.bigquery['connectionProperties']['keyFile']))
 
-    if check_table_exists(table=gs_table_id,client=bq_client):
-        once_flag = False
-        api.send("info",f"{gs_table_id} already exists.")
-    if data.attributes.get("ABAP") and data.attributes.get("metadata") and once_flag :
-        # I can create table
-        create_table(data.attributes)
-        once_flag = False
-    else :
+    if not once_flag:
         batch_index = data.attributes['message.batchIndex']
         api.send("info", f"Event skipped - message.batchIndex = {batch_index}")
+        return
+    
+    if check_table_exists(
+        table=f"{api.config.bigquery['connectionProperties']['projectId']}.{api.config.targetdataset}.{api.config.targettable}",
+        client=bq_client
+        ):
+        table=f"{api.config.bigquery['connectionProperties']['projectId']}.{api.config.targetdataset}.{api.config.targettable}"
+        api.send("info",f"{table} already exists.")
+        once_flag = False
 
-
+    elif data.attributes.get("ABAP") and data.attributes.get("metadata") :
+        # I can create table
+        create_table(data.attributes,client= bq_client)
+        once_flag = False
+        
 
 ##
 ## MAIN

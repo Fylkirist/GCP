@@ -1,5 +1,5 @@
 ##
-## Module to use pyarrow to otpimze data in the body - make ABAP data compliant with target system
+## Module to use pyarrow to optimze data in the body - make ABAP data compliant with target system
 ##
 import io
 import pyarrow as pa
@@ -150,7 +150,7 @@ class AbapMeta:
 # INPUT handler - getting "message" data with ABAP info
 def on_input(data):
     # TODO - not clean - in gen() we set global attributes based on api.config. Then in this data handler
-    #        we do set these properties in the attributes structure, which tehn uis used in AbapMeta object
+    #        we do set these properties in the attributes structure, which then is used in the AbapMeta object
     # Infusing attributes with information acquired by this operator
     data.attributes["ak.abap.cleansed"] = optimize_method  # pass through that we have used the ABAP Data Transform
     data.attributes["ak.abap.data_transformer"] = optimize_method  # Used by AbapMeta class

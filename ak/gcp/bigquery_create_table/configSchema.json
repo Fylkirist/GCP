@@ -38,8 +38,8 @@
         }
     },
     "required": [
-        "sourcetable",
         "targetdataset",
-        "targettable"
+        "targettable",
+        "bigquery"
     ]
 }

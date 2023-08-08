@@ -33,7 +33,6 @@ from google.protobuf.message import Message
 
 import json, csv, sys
 import asyncio
-from datetime import datetime
 
 #Credentials for Google Cloud platform
 def gcp_creds( keyfile_content : dict, ):
