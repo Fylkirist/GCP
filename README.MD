@@ -77,4 +77,4 @@ This is an operator to sanitize the data before it's parsed and sent to bigquery
 
 ### Bigquery table creator
 
-Checks if the table exists and creates it with the proper attributes if not, can always be present in pipeline.
+Checks if the table exists and creates it with the proper attributes if not, it can always be present in pipeline, but make sure it is ahead of the CDC writer.
