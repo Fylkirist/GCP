@@ -47,7 +47,7 @@ Make sure to tag the dockerfile with "bigquery" and pyarrow==12.0.1 so our opera
 
 ### Protobuf compiler operator
 
-Using the compiler in your pipeline is recommended but not required, it makes starting up a new pipeline or making changes to your table smoother by doing a one time protobuf compilation upon initial load. In order to use it, place it ahead of the CDC writer operator. Connect the SLT connector to the protobuf compiler input and connect the output to the CDC writer, the info port will send the proto schema so you can see it on a wiretap. The protobuf compiler sends a flag in the Message object that tells the CDC writer if the message comes with the bytestring used to encode the protobuf.
+Using the compiler in your pipeline is required, it makes starting up a new pipeline or making changes to your table smoother by doing a one time protobuf compilation upon initial load. In order to use it, place it ahead of the CDC writer operator. Connect the SLT connector to the protobuf compiler input and connect the output to the CDC writer, the info port will send the proto schema so you can see it on a wiretap. The protobuf compiler sends a flag in the Message object that tells the CDC writer if the message comes with the bytestring used to encode the protobuf.
 
 ---
 
@@ -57,27 +57,6 @@ Using the compiler in your pipeline is recommended but not required, it makes st
 
 This operator writes to Google bigquery.
 To use, you need to select your credentials, then enter the names of your dataset and table you want to update.
-If you are manually compiling your protobufs, set "precompiled" to true, and substitute the contents of buffer_dict in the manner described below:
-
-Your message name must be TUNIT in your proto file.
-Copy the following from your compiled pb2 file
-
-![](raw/copythis.PNG)
----
-
-Create a new dictionary entry using the source table name in buffer_dict like so
-
-``` python
-buffer_dict = {
-    "SOURCETABLE":{
-        "bytes":b'your_bytestring_here',
-        "start":0,
-        "end":0,
-        "options":None,
-        "topmessage":"message_protobuf_name"
-    }
-}
-```
 
 ### ABAP Data Transformer
 
