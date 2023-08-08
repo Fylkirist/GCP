@@ -102,5 +102,4 @@ This package has been developed during a PoC, and have added features as the req
 ## Requirements
 SAP Data Intelligence Cloud, DMIS 2011 or newer installed on source system. DMIS must adhere to latest SP available.
 
-## To-Do
-Any additions will be triggered by specific customer requests. There is no roadmap in place. See previous section.
+
