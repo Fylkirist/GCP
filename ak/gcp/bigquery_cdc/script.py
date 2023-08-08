@@ -170,8 +170,8 @@ def parse_input(data):
                     pass
                 elif field["Kind"] == 'C': # BK - remove checking the opther options
                     pass
-                elif field["Kind"] in ['s', 'I']:
-                    value = int(value)
+                elif field["Kind"] in ['s', 'I','Z']:
+                    value = int(value) if len(value) > 0 else 0
                 elif field["Kind"] in ['P']:
                     value = float(value)
                 elif field["Kind"] in ['D'] and value == "9999-99-99":  # BK check if date is out of range

@@ -193,7 +193,7 @@ def on_input(data):
             py = pc.utf8_slice_codeunits(table_col,0,19).to_pylist()
             mask = pc.match_substring(table_col, "9999-99-99T",)
             nc = pa.array(py, type=pa.string(), mask=mask.combine_chunks()).cast(pa.timestamp("us"))  # Expect local TZ
-            nc = pc.assume_timezone(nc, "CET")
+            nc = pc.assume_timezone(nc, "CET",ambiguous="earliest")
             new_array.append(nc.cast(pa.int64()))
             # Change data type to Z for timestamp if "Optimize"
             if m.optimize_method in [m.OPTIMIZE, m.OPTIMIZE_WITH_NULLS] :
