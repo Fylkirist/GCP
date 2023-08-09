@@ -1,3 +1,4 @@
+import pyarrow as pa
 ##
 ## Creating a ABAP Metadata class
 ##
