@@ -1,7 +1,15 @@
+"""
+ABAP Metadata class
+-------------------
+Handling the ABAP metadata attributes across the operators in the SLT to Google BigQuery suite
+
+"""
+
+__version__ = '0.2'
+__author__ = 'BK'
+
 import pyarrow as pa
-##
-## Creating a ABAP Metadata class
-##
+
 class AbapMeta:
     # Constants
     PASSTHROUGH = "Passthrough"
