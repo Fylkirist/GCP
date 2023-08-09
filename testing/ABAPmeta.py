@@ -6,13 +6,6 @@ class AbapMeta:
     PASSTHROUGH = "Passthrough"
     OPTIMIZE = "Optimize"
     OPTIMIZE_WITH_NULLS = "Optimize with NULLS"
-    # Class variables
-    # col_names = [] # Ordered list of column names - same order as the CSV in the body
-    # col_meta = {} # metadata about the column
-    # col_types = {} # abap metadata about the column
-    # lastBatch = False
-    # is_valid_ABAP = False
-    # optimize_method = None
 
     def __init__(self, attributes):
         # Get attributes from the config environment
