@@ -15,8 +15,10 @@ class AbapMeta:
     # optimize_method = None
 
     def __init__(self, attributes):
-        # Check optimze_method set in environment
+        # Get attributes from the config environment
         self.optimize_method = attributes.get("ak.abap.data_transformer")
+        self.alpha_conversion = attributes.get("ak.abap.alpha_conversion")
+        self.insert_timestamp = attributes.get("ak.abap.insert_timestamp")
         # Check if EOF message (Initial Load scenario)
         if attributes["ABAP"]["Kind"] == "Element":
             self.lastBatch = True
@@ -30,6 +32,16 @@ class AbapMeta:
         self.col_names = []
         self.col_types = {}
         self.col_meta = {}
+
+        if self.insert_timestamp:  # Add new column in ABAP description - not available in source
+            ABAPKEY["Fields"].append(
+                {
+                "Name": "INSERT_TS",
+                "Type": "",
+                "Kind": "Z",
+                "Length": 0.0,
+                "Decimals": 0.0
+            })
         for columnname in ABAPKEY["Fields"]:
             self.col_names.append(columnname["Name"])
             # col_types[columnname['Name']] = columnname['Kind']
@@ -44,6 +56,7 @@ class AbapMeta:
                 in [
                     "TABLE_NAME",
                     "IUUC_OPERATION",
+                    "INSERT_TS",
                 ]
                 else [
                     item
@@ -106,8 +119,7 @@ class AbapMeta:
     def pyarrow_strings_can_be_null(self):
         return True if self.optimize_method == self.OPTIMIZE_WITH_NULLS else False
 
-
-
+## MAIN -- will only run when testing code
 if __name__ == "__main__":
     print("Executed when invoked directly")
     import json
