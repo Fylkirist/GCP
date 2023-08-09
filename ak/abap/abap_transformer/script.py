@@ -8,16 +8,19 @@ import pyarrow.csv as csv
 import json, sys
 from datetime import datetime
 
-VERSION = "0.86"  # Updated 2023-08-08
+VERSION = "0.87"  # Updated 2023-08-09
 VERSION_UPDATE = [  "2023-07-26 - Updated handling of timestamps: 9999-99-99 -> '0000-01-01' ",
                     "2023-07-31 - csv.WriteOptions() changed quoting_style from 'none' to 'needed' ",
                     "2023-08-08 - added two now config items; alpha_conversion -> remove leading zeros, insert_timestamp -> timestamp when changed",
+                    "2023-08-09 - moved ABAPmeta library into Docker - to be shared across operators",
                     ]
 
 ONCE_FLAG = True
 
 # Standard class for handling ABAP metadata - included in operator folder
-#from ABAPmeta import ABAPmeta
+sys.path.append("/home/vflow")
+from ABAPmeta import AbapMeta
+'''
 ##
 ## Creating a ABAP Metadata class
 ##
@@ -141,8 +144,7 @@ class AbapMeta:
         
     def pyarrow_strings_can_be_null(self):
         return True if self.optimize_method == self.OPTIMIZE_WITH_NULLS else False
-
-
+'''
 
 # INPUT handler - getting "message" data with ABAP info
 def on_input(data):
@@ -267,6 +269,10 @@ def gen():
     api.send("info", f'ak.abap.alpha_conversion : "{api.config.alpha_conversion}"')
     api.send("info", f'ak.abap.insert_timestamp : "{api.config.insert_timestamp}"')
     api.send("info", "")
+    
+    import os
+    api.send("info",f"DIR listing: {str(os.listdir())}")
+    api.send("info", f"PATH: {os.getcwd()}")
 
 
 ##
