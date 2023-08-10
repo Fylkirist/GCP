@@ -15,7 +15,6 @@ def parse_and_compile(data):
         return
     mydict = data.attributes
     meta = []  # Colnames from dict object
-    #ABAPKEY = mydict['ABAP']
     abapmeta = iter(mydict['metadata'])
 
     # Iterate through ABAP fields and metadata fields - need to know columnname, key field, data type and lengths
@@ -25,10 +24,8 @@ def parse_and_compile(data):
         colname = row['Name']
         if colname not in ['TABLE_NAME', 'IUUC_OPERATION', 'INSERT_TS']:
             r = next(abapmeta)
-            #print(f"colname = {colname}, {r['Field']['COLUMNNAME']}")
             while r['Field']['COLUMNNAME'] != colname:
                 r = next(abapmeta)
-            #print(r['Field']['COLUMNNAME'])
             r_colname = r['Field']['COLUMNNAME']
             r_key = r['Field']['KEY']
             r_abaptype = r['Field']['ABAPTYPE']
@@ -65,10 +62,13 @@ def parse_and_compile(data):
     proto.append( f"  optional string _CHANGE_TYPE = {idx+2};" )
     proto.append('}')
 
+    info_msg = "Protobuf definition source---- \n"
     f = open("TUNIT.proto","+a")    
     for line in proto:
         f.write(line + "\n")
-        api.send("info",line)
+        info_msg += line + "\n"
+
+    api.send("info",info_msg)
     f.close()
     
     command = [f"{dir_path}/bin/protoc", f"-I={dir_path}", f"--python_out={dir_path}", f"{dir_path}/TUNIT.proto"]

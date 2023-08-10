@@ -4,6 +4,13 @@
 ## AK: 2023-07-13 - V1 of the operator
 ##
 
+VERSION_INFO = [
+    f'Python version = {sys.version}',
+    'AK (2023-07-13): Version 1.0 - Have message dict for 5 tables - can also get message desc through protocompiler',
+    "AK (2023-07-24): Version 1.1 - Added dependency to understand if protocompiler is present in pipeline",
+    "AK (2023-08-08): Version 1.2 - Removed unnecessary globals, removed buffer dict, timestamping is now handled by data transformer, message definition now only happens once"
+]
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import symbol_database as _symbol_database
@@ -44,10 +51,11 @@ table_struct = None
 def print_info():
     
     # What version do we use for Gen1
-    api.send("info", f'Python version = {sys.version}')
-    api.send("info", 'AK (2023-07-13): Version 1.0 - Have message dict for 5 tables - can also get message desc through protocompiler')
-    api.send("info","AK (2023-07-24): Version 1.1 - Added dependency to understand if protocompiler is present in pipeline")
-    api.send("info","AK (2023-08-08): Version 1.2 - Removed unnecessary globals, removed buffer dict, timestamping is now handled by data transformer, message definition now only happens once")
+    info_msg = ""
+    for msg in VERSION_INFO:
+        info_msg += msg+"\n"
+    
+    api.send("info", info_msg)
     
     # Connection properties
     conn_props = api.config.bigquery['connectionProperties']
@@ -124,7 +132,6 @@ async def default_stream_to_bq(table,messages,client):
         generate_message_batches(messages,9)
     )
 
-    api.send("info","Requests memed")
     response = await client.append_rows(
         requests=requests
     )
