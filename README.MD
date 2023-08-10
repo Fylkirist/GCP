@@ -23,13 +23,16 @@ The other main advantage of the provided operators is the possibility to replica
 
 
 To start, we need to ensure our pipeline has the proper dependencies, follow the instructions in the link below to setup our container.
+
 [Dockerfile setup readme](https://github.com/Fylkirist/data-intelligence-slt-to-biqquery-cdc/tree/main/dockerfiles)
+
 Make sure to tag the dockerfile with "bigquery" and pyarrow==12.0.1 so our operators can use it later.
 
 Now download the release here:
 [v1.0.0 release download](https://github.com/Fylkirist/data-intelligence-slt-to-biqquery-cdc/releases/tag/v1.0.0)
 
 And import it in this directory in your repository tab:
+
 ![](raw/repofolder.PNG)
 
 To import it, right click the "operators" folder and click "import file" then select the tgz file.
@@ -55,6 +58,8 @@ To use, you need to select your credentials, then enter the names of your datase
 ### ABAP Data Transformer
 
 This is an operator to sanitize the data before it's parsed and sent to Google BigQuery, for example, bigquery does not allow datestamps to exceed 31. December so invalid timestamps are rewritten from 9999-99-99 to NULL. Place it before the protobuf compiler in the pipeline.
+
+![](raw/DataTransformerConfig.PNG)
 
 ---
 
