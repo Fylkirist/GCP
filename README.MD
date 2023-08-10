@@ -22,24 +22,18 @@ The other main advantage of the provided operators is the possibility to replica
 ### Setup
 
 
-To start, we need to ensure our pipeline has the proper dependencies.
-Go to your repo and create a new dockerfile that contains the following code: 
-
-    FROM $com.sap.sles.base
-
-    RUN pip install --user google-cloud-bigquery
-    RUN pip install --user google-cloud-bigquery-storage
-    RUN pip install --user google-cloud-storage
-    RUN pip install --user pyarrow==12.0.1
-
-    ENV PROTOC_VERSION=23.4
-
-    RUN curl -L "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip" -o /home/vflow/protoc.zip 
-    RUN unzip /home/vflow/protoc.zip -d /home/vflow 
-    RUN rm -rf /tmp/vflow/protoc.zip
-    
-
+To start, we need to ensure our pipeline has the proper dependencies, follow the instructions in the link below to setup our container.
+[Dockerfile setup readme](https://github.com/Fylkirist/data-intelligence-slt-to-biqquery-cdc/tree/main/dockerfiles)
 Make sure to tag the dockerfile with "bigquery" and pyarrow==12.0.1 so our operators can use it later.
+
+Now download the release here:
+[v1.0.0 release download](https://github.com/Fylkirist/data-intelligence-slt-to-biqquery-cdc/releases/tag/v1.0.0)
+
+And import it in this directory in your repository tab:
+![](raw/repofolder.PNG)
+
+To import it, right click the "operators" folder and click "import file" then select the tgz file.
+Now once you refresh your "operators" tab, they should be available to you.
 
 ![](raw/pipeline.png)
 
@@ -80,3 +74,7 @@ This package has been developed during a PoC, and have added features as the req
 
 ## Requirements
 SAP Data Intelligence Cloud, DMIS 2011 or newer installed on source system. DMIS must adhere to latest SP available.
+
+## Release
+
+[v1.0.0 release download](https://github.com/Fylkirist/data-intelligence-slt-to-biqquery-cdc/releases/tag/v1.0.0)
