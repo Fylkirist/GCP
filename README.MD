@@ -71,9 +71,9 @@ Checks if the table exists and creates it with the proper attributes if not. We 
 ### Creating a BigQuery table
 
 To create a BigQuery table that matches data from an SLT connector, use the following pipeline:
-1.SLT connector
-2.Data Transformer
-3.Google BigQuery Table creator
+1. SLT connector
+2. Data Transformer
+3. Google BigQuery Table creator
 
 This pipeline will create a new table in your BigQuery project with a schema that matches the input data, do keep in mind that you will need to use the same settings on the data transformer when you are setting up the writer pipeline, since it modifies not just data, but also what data types are written.
 
