@@ -38,16 +38,15 @@ And import it in this directory in your repository tab:
 To import it, right click the "operators" folder and click "import file" then select the tgz file.
 Now once you refresh your "operators" tab, they should be available to you.
 
-![](raw/pipeline.png)
+
 
 ---
 
-### Protobuf compiler operator
+### BigQuery message compiler (protobufs)
 
 Using the compiler in your pipeline is required, it makes starting up a new pipeline or making changes to your table smoother by doing a one time protobuf compilation upon initial load. In order to use it, place it ahead of the CDC writer operator. Connect the SLT connector to the protobuf compiler input and connect the output to the CDC writer, the info port will send the proto schema so you can see it on a wiretap. The protobuf compiler sends a flag in the Message object that tells the CDC writer if the message comes with the bytestring used to encode the protobuf.
 
 ---
-
 ![](raw/CDCconfig.PNG)
 
 ### Google BigQuery CDC Writer operator
@@ -68,6 +67,35 @@ This is an operator to sanitize the data before it's parsed and sent to Google B
 Checks if the table exists and creates it with the proper attributes if not. We recommend creating a separate pipeline to help creating BigQuery tables.
 
 ---
+
+### Creating a BigQuery table
+
+To create a BigQuery table that matches data from an SLT connector, use the following pipeline:
+1.SLT connector
+2.Data Transformer
+3.Google BigQuery Table creator
+
+This pipeline will create a new table in your BigQuery project with a schema that matches the input data, do keep in mind that you will need to use the same settings on the data transformer when you are setting up the writer pipeline, since it modifies not just data, but also what data types are written.
+
+![](raw/TableCreationPipeline.PNG)
+
+
+---
+
+### Setting up a table writer pipeline
+
+To replicate or stream rows to a Bigquery table, set your pipeline up in the following order:
+1. SLT connector
+2. Data transformer
+3. Google BigQuery message compiler
+4. Google BigQuery CDC writer
+
+Make sure the table you are trying to write to exists and has the same schema as the input stream
+
+![](raw/pipeline.png)
+
+---
+
 ## Performance
 
 The general performance of this replication process is quite fast. However we may improve code to speed up processing.  For the time, the "ABAP Data Transform" operator is using pyarrow libraries. The arrays created by pyarrow can be directly passed to the "Google BigQuery CDC Writer" operator, instead of going by CSV content in the body og the message.
