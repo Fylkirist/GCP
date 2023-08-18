@@ -1,0 +1,30 @@
+{
+    "description": "Pipeline throughput benchmarker",
+    "component": "com.sap.system.python3Operator",
+    "versionStatus": "active",
+    "inports": [
+        {
+            "name": "datain",
+            "type": "message"
+        },
+        {
+            "name": "cmd",
+            "type": "string"
+        }
+    ],
+    "outports": [
+        {
+            "name": "dataout",
+            "type": "message"
+        },
+        {
+            "name": "info",
+            "type": "string"
+        }
+    ],
+    "icon": "tachometer",
+    "config": {
+        "$type": "http://sap.com/vflow/ak.utils.benchmarker.configSchema.json",
+        "script": "file://benchmarker.py"
+    }
+}
