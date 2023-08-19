@@ -15,6 +15,7 @@ The other main advantage of the provided operators is the possibility to replica
     <li>Google Bigquery Table Creator operator</li>
     <li>ABAP Data Transformer operator</li>
     <li>Protobuf compiler operator</li>
+    <li>Pipeline throughput benchmarker</li>
 </ul>
 
 

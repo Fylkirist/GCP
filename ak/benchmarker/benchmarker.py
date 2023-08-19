@@ -4,11 +4,13 @@ start = time.time()
 time_tracker = 0
 byte_tracker = 0
 
-def on_data_input(data):
+def increment_timer():
     global time_tracker
-    global byte_tracker
     elapsed = time.time()
     time_tracker = elapsed-start
+
+def on_data_input(data):
+    global byte_tracker
     byte_tracker += len(data.body.encode('utf-8'))
     api.send("dataout",data)
 
@@ -24,5 +26,6 @@ def on_cmd_input(command):
         data_info_string += "Invalid command: Supported commands are hour,second and total"
     api.send("info",data_info_string)
 
+api.add_timer("5s",increment_timer)
 api.set_port_callback("datain",on_data_input)
 api.set_port_callback("cmd",on_cmd_input)
