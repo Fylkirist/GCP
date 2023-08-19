@@ -10,4 +10,4 @@ Supported commands are:
 
 This operator is to be placed before any data processing happens, like this:
 
-![](https://github.com/Fylkirist/data-intelligence-slt-to-biqquery-cdc/raw/BenchmarkerPipeline.PNG)
+![](../../raw/BenchmarkerPipeline.PNG)
