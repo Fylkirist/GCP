@@ -17,11 +17,11 @@ def on_data_input(data):
 def on_cmd_input(command):
     data_info_string = "Command entered: " + command + " \n"
     if command.lower() == "hour":
-        data_info_string += f"Throughput: {(byte_tracker/1024)/(time_tracker/3600)} kilobytes per hour"
+        data_info_string += f"Throughput: {(byte_tracker/1024)/(time_tracker/3600):.1f%} kilobytes per hour"
     elif command.lower() == "second":
-        data_info_string += f"Throughput: {(byte_tracker/1024)/time_tracker} kilobytes per second"
+        data_info_string += f"Throughput: {(byte_tracker/1024)/time_tracker:.1f%} kilobytes per second"
     elif command.lower() == "total":
-        data_info_string += f"Total throughput: {byte_tracker/1024} kilobytes over {time_tracker} seconds"
+        data_info_string += f"Total throughput: {byte_tracker/1024:.1f%} kilobytes over {time_tracker:.0f%} seconds"
     else:
         data_info_string += "Invalid command: Supported commands are hour,second and total"
     api.send("info",data_info_string)
