@@ -1,4 +1,5 @@
 import time
+import sys
 
 start = time.time()
 time_tracker = 0
@@ -11,7 +12,7 @@ def increment_timer():
 
 def on_data_input(data):
     global byte_tracker
-    byte_tracker += len(data.body.encode('utf-8'))
+    byte_tracker += sys.getsizeof(data.body)
     api.send("dataout",data)
 
 def on_cmd_input(command):
