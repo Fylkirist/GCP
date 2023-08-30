@@ -26,5 +26,8 @@
     "config": {
         "$type": "http://sap.com/vflow/ak.utils.benchmarker.configSchema.json",
         "script": "file://benchmarker.py"
+    },
+    "tags": {
+        "iperf": ""
     }
 }
