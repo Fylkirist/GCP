@@ -16,4 +16,5 @@ Ports:
     cmd: Takes commands from a terminal operator.
     info: Outputs the benchmark information when a command is entered.
 
+NB: The benchmarker requires the iperf dockerfile to run.
 ![](BenchmarkerUsage.PNG)
