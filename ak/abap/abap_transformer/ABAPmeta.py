@@ -5,6 +5,7 @@ class ABAPmeta:
     col_names = [] # Ordered list of column names - same order as the CSV in the body
     col_meta = {} # metadata about the column
     col_types = {} # abap metadata about the column
+    alpha_conversion_columns = []
     lastBatch = False
     is_valid_ABAP = False
     def __init__(self, attributes):
@@ -19,6 +20,7 @@ class ABAPmeta:
         ABAPKEY = attributes['ABAP']
         METAKEY = attributes['metadata']
         self.col_names = []
+        self.alpha_conversion_columns = attributes["ak.abap.alpha_conversion_columns"]
         for columnname in ABAPKEY['Fields']:
             self.col_names.append(columnname['Name'])
             #col_types[columnname['Name']] = columnname['Kind']

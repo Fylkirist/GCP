@@ -27,6 +27,19 @@
             "title": "Add separate column for inserted/updated timestamp",
             "description": "Add a timestamp column in target for when data changes",
             "type": "boolean"
+        },
+        "alpha_conversion_fields": {
+            "title": "alpha conversion fields",
+            "description": "Comma separated values of which fields to apply alpha conversion to",
+            "type": "string",
+            "sap_vflow_constraints": {
+                "ui_visibility": [
+                    {
+                        "name": "alpha_conversion",
+                        "value": true
+                    }
+                ]
+            }
         }
     },
     "required": [

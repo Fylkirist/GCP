@@ -13,6 +13,7 @@ VERSION_UPDATE = [  "2023-07-26 - Updated handling of timestamps: 9999-99-99 -> 
                     "2023-07-31 - csv.WriteOptions() changed quoting_style from 'none' to 'needed' ",
                     "2023-08-08 - added two now config items; alpha_conversion -> remove leading zeros, insert_timestamp -> timestamp when changed",
                     "2023-08-09 - moved ABAPmeta library into Docker - to be shared across operators",
+                    "2023-09-14 - alpha conversion now uses a csv string in configs to define which columns to convert"
                     ]
 
 ONCE_FLAG = True
@@ -154,6 +155,7 @@ def on_input(data):
     data.attributes["ak.abap.data_transformer"] = api.config.optimize_for_bigquery  # Used by AbapMeta class
     data.attributes["ak.abap.alpha_conversion"] = api.config.alpha_conversion  # Boolean value if Alpha is trimmed for leading zeros
     data.attributes["ak.abap.insert_timestamp"] = api.config.insert_timestamp  # Boolean value if we have added a timestamp
+    data.attributes["ak.abap.alpha_conversion_columns"] = [value for value in csv.read_csv(io.StringIO(api.config.alpha_conversion_fields))] if api.config.alpha_conversion else []
     m = AbapMeta(data.attributes) # reorg of attributes
     # Check if EOF message (Initial Load scenario)
     if m.lastBatch == True:
@@ -223,7 +225,7 @@ def on_input(data):
         elif desc["ABAPTYPE"] in ["TIMS"]:
             nc =pc.utf8_slice_codeunits(table_col,0,8)
             new_array.append(nc)
-        elif desc["MD_DOMNAME"] in ["/SCWM/DO_TU_NUM",] and m.alpha_conversion:   # ALPHA conversion
+        elif desc["MD_DOMNAME"] in ["/SCWM/DO_TU_NUM",] and m.alpha_conversion and colname in m.alpha_conversion_columns:   # ALPHA conversion
             # nc = table_col.cast(pa.int64()).cast(pa.string())  # Works only on numeric strings
             nc = pc.ascii_ltrim(table_col,"0")  # Remove leading character - if string only contains zeros, empty string will be returned
             new_array.append(nc)
