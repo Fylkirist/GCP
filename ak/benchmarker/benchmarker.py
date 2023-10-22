@@ -9,7 +9,8 @@ time_tracker = 0
 byte_tracker = 0
 line_tracker = 0
 
-def use_iperf_benchmark(host:str,port:int):
+
+def use_iperf_benchmark(host: str, port: int):
     client = iperf3.Client()
     client.server_hostname = host
     client.port = port
@@ -26,24 +27,27 @@ def use_iperf_benchmark(host:str,port:int):
         MegaBytes per second (MB/s)  {float(result.received_MB_s):.1f} received
         """
 
+
 def increment_timer():
     global time_tracker
     elapsed = time.time()
-    time_tracker = elapsed-start
+    time_tracker = elapsed - start
+
 
 def on_data_input(data):
     global byte_tracker
     global line_tracker
-    if type(data.body) == list:
-        line_tracker+=len(data.body)
-    elif type(data.body) == dict:
-        line_tracker+=1
-    elif type(data.body) == str:
-        line_tracker+=len(list(csv.reader(io.StringIO(data.body))))
+    if type(data.body) is list:
+        line_tracker += len(data.body)
+    elif type(data.body) is dict:
+        line_tracker += 1
+    elif type(data.body) is str:
+        line_tracker += len(list(csv.reader(io.StringIO(data.body))))
     else:
-        line_tracker+=1
+        line_tracker += 1
     byte_tracker += sys.getsizeof(data.body)
-    api.send("dataout",data)
+    api.send("dataout", data)
+
 
 def on_cmd_input(command):
     split_command_string = command.split(" ")
@@ -72,8 +76,9 @@ def on_cmd_input(command):
         else:
             data_info_string += "Insufficient arguments for iperf command, usage: iperf [host_url] [port_number]"
 
-    api.send("info",data_info_string)
+    api.send("info", data_info_string)
 
-api.add_timer("1s",increment_timer)
-api.set_port_callback("datain",on_data_input)
-api.set_port_callback("cmd",on_cmd_input)
+
+api.add_timer("1s", increment_timer)
+api.set_port_callback("datain", on_data_input)
+api.set_port_callback("cmd", on_cmd_input)
