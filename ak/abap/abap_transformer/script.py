@@ -8,12 +8,14 @@ import pyarrow.csv as csv
 import json, sys
 from datetime import datetime
 
-VERSION = "0.87"  # Updated 2023-08-09
+VERSION = "0.9.0"  # Updated 2023-11-12
 VERSION_UPDATE = [  "2023-07-26 - Updated handling of timestamps: 9999-99-99 -> '0000-01-01' ",
                     "2023-07-31 - csv.WriteOptions() changed quoting_style from 'none' to 'needed' ",
                     "2023-08-08 - added two now config items; alpha_conversion -> remove leading zeros, insert_timestamp -> timestamp when changed",
                     "2023-08-09 - moved ABAPmeta library into Docker - to be shared across operators",
-                    "2023-09-14 - alpha conversion now uses a csv string in configs to define which columns to convert"
+                    "2023-09-14 - alpha conversion now uses a csv string in configs to define which columns to convert",
+                    "2023-09-14 - NB! MD_DOMNAME=/SCWM/DO_TU_NUM always converted if alpha_conversion set to True",
+                    "2023-11-12 - fixed alpha_conversion_columns - added more info to output.",
                     ]
 
 ONCE_FLAG = True
@@ -155,7 +157,8 @@ def on_input(data):
     data.attributes["ak.abap.data_transformer"] = api.config.optimize_for_bigquery  # Used by AbapMeta class
     data.attributes["ak.abap.alpha_conversion"] = api.config.alpha_conversion  # Boolean value if Alpha is trimmed for leading zeros
     data.attributes["ak.abap.insert_timestamp"] = api.config.insert_timestamp  # Boolean value if we have added a timestamp
-    data.attributes["ak.abap.alpha_conversion_columns"] = [value for value in csv.read_csv(io.StringIO(api.config.alpha_conversion_fields))] if api.config.alpha_conversion else []
+    # 2023-111-12 BUG: data.attributes["ak.abap.alpha_conversion_columns"] = [value for value in csv.read_csv(io.StringIO(api.config.alpha_conversion_fields))] if api.config.alpha_conversion else []
+    data.attributes["ak.abap.alpha_conversion_columns"] = api.config.alpha_conversion_fields.split(",") if api.config.alpha_conversion else []
     m = AbapMeta(data.attributes) # reorg of attributes
     # Check if EOF message (Initial Load scenario)
     if m.lastBatch == True:
@@ -167,8 +170,14 @@ def on_input(data):
         col_info = "\nInput data columns\n---------------------"
         for k, v in m.col_types.items():
             col_info += "\n" + f"Name:{k}, Kind:{v['Kind']}"
+        # 2023-11-12 - Also send info of alpha conversions fields
+        if len(data.attributes["ak.abap.alpha_conversion_columns"]) > 0:
+            col_info += "\nalpha conversion columns\n---------------------"
+            for v in data.attributes["ak.abap.alpha_conversion_columns"]:
+                col_info += "\n" + f"{v}"
         api.send("info",col_info)
         ONCE_FLAG = False
+
     #schema = {c: pa.string() for c in m.col_names}  # Replaced with code below
     schema = m.pyarrow_schema()
     strings_can_be_null = m.pyarrow_strings_can_be_null()
@@ -225,7 +234,8 @@ def on_input(data):
         elif desc["ABAPTYPE"] in ["TIMS"]:
             nc =pc.utf8_slice_codeunits(table_col,0,8)
             new_array.append(nc)
-        elif desc["MD_DOMNAME"] in ["/SCWM/DO_TU_NUM",] and m.alpha_conversion and colname in m.alpha_conversion_columns:   # ALPHA conversion
+        # 2023-11-12 - TODO: Hack - ABAPMeta (m) doesn't know about alpha_conversion_columns yet
+        elif m.alpha_conversion and ( desc["MD_DOMNAME"] in ["/SCWM/DO_TU_NUM",] or colname in data.attributes["ak.abap.alpha_conversion_columns"]):   # ALPHA conversion
             # nc = table_col.cast(pa.int64()).cast(pa.string())  # Works only on numeric strings
             nc = pc.ascii_ltrim(table_col,"0")  # Remove leading character - if string only contains zeros, empty string will be returned
             new_array.append(nc)
