@@ -6,18 +6,17 @@ With the ABAP Data Transformer operator you will have an out-of-box `data` clean
 > Note: This operator requires pyarrow >= 12.0.1 and hence tagged. 
 >       Also 'require' google libraries since it is meant to provide data for a bigquery streaming operator, 
 >       not requiring two different images to be built - and hence serialization between processes.
-
-> Note: each callback registered in the script runs in a **different thread**.
-> As the script developer, you should handle potential concurrency issues such as race
-> conditions. You can, for instance, use primitives from the
-> Python [threading module](https://docs.python.org/3/library/threading.html)
-> to get protected against said issues.
-
+>
+>       Requires ABAPMeta.py in Dockerfile
 
 Configuration parameters
 ------------
 
-* **optimize for bigquery** (mandatory): options are `passthrough` or `optimize`  
+* **optimize for bigquery** (mandatory): options are `passthrough`, `optimize` or `optimize_with_NULLS`
+*     
+* **insert Timestamp** (mandatory): if True - additional INSERT_TS field added which contains inserted Timestamp
+* **alpha conversion** (mandatory): if True - remove rightpadded zeros from fields of type MD_DOMNAME = /SCWM/DO_TU_NUM
+* **alpha conversion fields**: additional fields to remove rightpadded zeros, delimited with comma
 
 
 Input
